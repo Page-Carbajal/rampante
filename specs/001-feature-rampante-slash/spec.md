@@ -93,7 +93,6 @@ AI CLI users working with Spec Kit need a comprehensive automation system that p
 #### Integration and Compatibility
 
 - **FR-019**: System MUST work with existing Spec Kit installations without requiring modifications to Spec Kit
-- **FR-020**: System MUST maintain backward compatibility with [NEEDS CLARIFICATION: how many previous Spec Kit versions?]
 
 ### Key Entities _(include if feature involves data)_
 
