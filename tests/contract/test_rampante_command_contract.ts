@@ -20,7 +20,7 @@ Deno.test("Contract: creates timestamped backup before modification", async () =
       "run",
       "--allow-read",
       "--allow-write",
-      join(REPO_ROOT, "src", "cli", "update_rampante_command.ts"),
+      join(REPO_ROOT, "src", "cli", "update-rampante-command.ts"),
       "--root",
       tmp,
     ],

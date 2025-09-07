@@ -14,7 +14,7 @@
     "fmt": "deno fmt",
     "lint": "deno lint",
     "check": "deno check src/**/*.ts",
-    "update:command": "deno run --allow-read --allow-write src/cli/update_rampante_command.ts"
+    "update:command": "deno run --allow-read --allow-write src/cli/update-rampante-command.ts"
   },
   "fmt": {
     "useTabs": false,

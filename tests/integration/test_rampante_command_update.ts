@@ -15,7 +15,7 @@ Deno.test("Integration: simplified phases present; selection phases absent", asy
       "run",
       "--allow-read",
       "--allow-write",
-      join(REPO_ROOT, "src", "cli", "update_rampante_command.ts"),
+      join(REPO_ROOT, "src", "cli", "update-rampante-command.ts"),
       "--root",
       tmp,
     ],
@@ -35,4 +35,3 @@ Deno.test("Integration: simplified phases present; selection phases absent", asy
   // Absence expectations
   assertEquals(content.includes("Stack Selection"), false);
 });
-

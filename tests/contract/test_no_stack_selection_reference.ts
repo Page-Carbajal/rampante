@@ -18,7 +18,7 @@ Deno.test("Contract: new file contains no reference to scripts/select-stack.sh",
       "run",
       "--allow-read",
       "--allow-write",
-      join(REPO_ROOT, "src", "cli", "update_rampante_command.ts"),
+      join(REPO_ROOT, "src", "cli", "update-rampante-command.ts"),
       "--root",
       tmp,
     ],
@@ -34,4 +34,3 @@ Deno.test("Contract: new file contains no reference to scripts/select-stack.sh",
   // This will currently fail until updater writes new content
   assertEquals(updated.includes("select-stack.sh"), false);
 });
-

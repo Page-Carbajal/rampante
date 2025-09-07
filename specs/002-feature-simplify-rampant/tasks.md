@@ -29,10 +29,10 @@
   - Path: `/Users/dubois/Source/repos/ai/rampante/templates/rampante-command-simplified.md`
 - [x] T003 [P] Scaffold updater script (no logic yet)
   - Create Deno CLI script entry that will handle backup + rewrite.
-  - Path: `/Users/dubois/Source/repos/ai/rampante/src/cli/update_rampante_command.ts`
-  - Command: `deno run --allow-read --allow-write /Users/dubois/Source/repos/ai/rampante/src/cli/update_rampante_command.ts --help`
+  - Path: `/Users/dubois/Source/repos/ai/rampante/src/cli/update-rampante-command.ts`
+  - Command: `deno run --allow-read --allow-write /Users/dubois/Source/repos/ai/rampante/src/cli/update-rampante-command.ts --help`
 - [x] T004 [P] Add npm/deno script alias for updater
-  - Update `/Users/dubois/Source/repos/ai/rampante/deno.json` with task alias `update:command` → `deno run --allow-read --allow-write src/cli/update_rampante_command.ts`
+  - Update `/Users/dubois/Source/repos/ai/rampante/deno.json` with task alias `update:command` → `deno run --allow-read --allow-write src/cli/update-rampante-command.ts`
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 
@@ -54,13 +54,13 @@
 
 - [ ] T009 Implement backup utility
   - Function to create `/Users/dubois/Source/repos/ai/rampante/rampante/command/rampante.<epoch>.md` from existing file; add `-N` suffix on collision.
-  - File: `/Users/dubois/Source/repos/ai/rampante/src/cli/update_rampante_command.ts`
+  - File: `/Users/dubois/Source/repos/ai/rampante/src/cli/update-rampante-command.ts`
 - [ ] T010 Implement simplified content generator
   - Read template `/Users/dubois/Source/repos/ai/rampante/templates/rampante-command-simplified.md` and render with any necessary variables.
-  - File: `/Users/dubois/Source/repos/ai/rampante/src/cli/update_rampante_command.ts`
+  - File: `/Users/dubois/Source/repos/ai/rampante/src/cli/update-rampante-command.ts`
 - [ ] T011 Wire updater CLI
-  - Ensure `deno run --allow-read --allow-write src/cli/update_rampante_command.ts` performs: backup → write new content → log summary.
-  - File: `/Users/dubois/Source/repos/ai/rampante/src/cli/update_rampante_command.ts`
+  - Ensure `deno run --allow-read --allow-write src/cli/update-rampante-command.ts` performs: backup → write new content → log summary.
+  - File: `/Users/dubois/Source/repos/ai/rampante/src/cli/update-rampante-command.ts`
 - [ ] T012 Replace orchestrator file with simplified content
   - Overwrite `/Users/dubois/Source/repos/ai/rampante/rampante/command/rampante.md` using the generator.
   - Ensure no `select-stack.sh` references remain.

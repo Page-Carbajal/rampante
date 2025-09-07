@@ -16,7 +16,7 @@ Deno.test("Integration: unique backup names on same-second updates", async () =>
         "run",
         "--allow-read",
         "--allow-write",
-        join(REPO_ROOT, "src", "cli", "update_rampante_command.ts"),
+        join(REPO_ROOT, "src", "cli", "update-rampante-command.ts"),
         "--root",
         tmp,
       ],
@@ -35,4 +35,3 @@ Deno.test("Integration: unique backup names on same-second updates", async () =>
   // Expect at least two backups with unique names (will fail RED until implemented)
   assertEquals(backups.length >= 2, true);
 });
-
