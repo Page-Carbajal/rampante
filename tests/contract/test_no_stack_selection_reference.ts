@@ -5,6 +5,7 @@ const REPO_ROOT = dirname(dirname(dirname(fromFileUrl(import.meta.url))));
 
 Deno.test("Contract: new file contains no reference to scripts/select-stack.sh", async () => {
   const tmp = await Deno.makeTempDir({ prefix: "rampante-contract-" });
+  await Deno.mkdir(join(tmp, "scripts"), { recursive: true });
   const cmdDir = join(tmp, "rampante", "command");
   await Deno.mkdir(cmdDir, { recursive: true });
   const target = join(cmdDir, "rampante.md");

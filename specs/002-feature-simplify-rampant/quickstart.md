@@ -11,7 +11,10 @@ This guide outlines how to apply and verify the simplified slash command that re
    - Copy `rampante/command/rampante.md` → `rampante/command/rampante.<epoch>.md` (UTC seconds). If a file with that name exists, append `-1`, `-2`, ... until free.
 
 3. Generate new orchestrator definition
-   - Create a new `rampante/command/rampante.md` that:
+   - Run the updater CLI to generate a new `rampante/command/rampante.md`:
+     - `deno task update:command`
+     - Or for a specific root (used in tests): `deno run --allow-read --allow-write src/cli/update-rampante-command.ts --root <project-root>`
+   - The generated file:
      - Does NOT reference `scripts/select-stack.sh`.
      - Excludes stack-dependent phases.
      - Retains planning-focused phases: Specification → Plan → Tasks (delegated) → Project Overview.

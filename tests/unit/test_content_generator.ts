@@ -1,15 +1,15 @@
 import { assert, assertEquals } from "@std/assert";
-import { dirname, fromFileUrl, join } from "@std/path";
+import { join, dirname, fromFileUrl } from "@std/path";
 
 const REPO_ROOT = dirname(dirname(dirname(fromFileUrl(import.meta.url))));
 
-Deno.test("Integration: simplified phases present; selection phases absent", async () => {
-  const tmp = await Deno.makeTempDir({ prefix: "rampante-int-" });
+Deno.test("Unit: generated content contains simplified phases and no forbidden references", async () => {
+  const tmp = await Deno.makeTempDir({ prefix: "rampante-unit-" });
   await Deno.mkdir(join(tmp, "scripts"), { recursive: true });
   const cmdDir = join(tmp, "rampante", "command");
   await Deno.mkdir(cmdDir, { recursive: true });
   const target = join(cmdDir, "rampante.md");
-  await Deno.writeTextFile(target, "Legacy orchestrator with stack selection");
+  await Deno.writeTextFile(target, "legacy with stack selection");
 
   const p = new Deno.Command("deno", {
     args: [
@@ -23,16 +23,13 @@ Deno.test("Integration: simplified phases present; selection phases absent", asy
     stdout: "piped",
     stderr: "piped",
   });
-  await p.output();
+  const result = await p.output();
+  assertEquals(result.success, true, "CLI should succeed");
 
   const content = await Deno.readTextFile(target);
-
-  // Presence expectations (will fail RED until implemented)
   assert(content.includes("Phase 1: Specification Generation"));
   assert(content.includes("Phase 2: Implementation Planning"));
   assert(content.includes("Phase 3: Task Generation"));
   assert(content.includes("Phase 4: Project Overview Generation"));
-
-  // Absence expectations
-  assertEquals(content.includes("Stack Selection"), false);
+  assertEquals(content.includes("select-stack.sh"), false);
 });

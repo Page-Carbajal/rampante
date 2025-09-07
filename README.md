@@ -6,7 +6,7 @@ A YOLO approach to GitHub Spec Kit - The AI agent orchestrator for spec-driven d
 
 ## Overview
 
-Rampante is a multi-CLI slash command system that automates the complete spec-driven development workflow. It intelligently selects technology stacks, fetches up-to-date documentation, and orchestrates the execution of `/specify`, `/plan`, and `/tasks` commands to generate comprehensive project specifications and implementation plans.
+Rampante is a multi-CLI slash command system that automates the spec-driven development workflow. It orchestrates the execution of `/specify`, `/plan`, and `/tasks` commands to generate comprehensive project specifications and implementation plans. The simplified orchestrator removes stack selection and live documentation retrieval.
 
 **Phase 1** supports: **Codex CLI** (Phase 2 will add Claude Code and Gemini support)
 
@@ -65,7 +65,7 @@ deno run --allow-all src/cli/install.ts install codex --help
 - **`/rampante/command/`**: Slash command definition
   - `rampante.md` - Complete workflow orchestrator
 - **`/scripts/`**: Helper utilities
-  - `select-stack.sh` - YOLO stack selection logic
+  - `select-stack.sh` - YOLO stack selection logic (used by installers and legacy flows; not invoked by the simplified orchestrator)
   - `generate-project-overview.sh` - Project summary generator
 
 ### Global Configuration (Codex CLI)
@@ -82,15 +82,12 @@ deno run --allow-all src/cli/install.ts install codex --help
 /rampante "build a user authentication system with React frontend"
 ```
 
-### Complete 7-Phase Execution
+### Simplified Execution Phases
 
-1. **Stack Selection**: Analyzes prompt, selects optimal technology stack using YOLO strategy
-2. **Context Loading**: Loads stack-specific configuration and requirements
-3. **Documentation Retrieval**: Fetches latest documentation via context7 MCP
-4. **Specification**: Generates detailed feature specification (`spec.md`)
-5. **Planning**: Creates implementation plan with design artifacts (`plan.md`, `data-model.md`, contracts)
-6. **Task Generation**: Produces ordered task list with dependencies (`tasks.md`)
-7. **Overview Generation**: Creates AI-friendly project summary (`specs/PROJECT-OVERVIEW.md`)
+1. **Specification**: Generates detailed feature specification (`spec.md`)
+2. **Planning**: Creates implementation plan with design artifacts (`plan.md`, `data-model.md`, contracts)
+3. **Task Generation**: Produces ordered task list with dependencies (`tasks.md`)
+4. **Overview Generation**: Creates AI-friendly project summary (`specs/PROJECT-OVERVIEW.md`)
 
 ### Expected Results
 
@@ -104,11 +101,17 @@ After successful execution, you'll have:
 - **Task breakdown** in `specs/<feature>/tasks.md`
 - **Project overview** in `specs/PROJECT-OVERVIEW.md` (always overwrites)
 
-### Performance
+### Orchestrator Updater
 
-- **Total Duration**: ~2.5-4 minutes for complete workflow
-- **Documentation Phase**: ~30-60 seconds (depends on selected technologies)
-- **Local Operations**: ~30 seconds total for all other phases
+Use the updater to generate the simplified command definition and back up the current one:
+
+```bash
+deno task update:command
+# or for a specific root (e.g., in tests)
+deno run --allow-read --allow-write src/cli/update-rampante-command.ts --root $PWD
+```
+
+The updater creates a timestamped backup at `rampante/command/rampante.<epoch>.md` and writes the simplified `rampante/command/rampante.md` with no stack selection.
 
 ## Stack Selection (YOLO Strategy)
 

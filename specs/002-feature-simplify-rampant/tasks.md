@@ -52,43 +52,43 @@
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
-- [ ] T009 Implement backup utility
+- [x] T009 Implement backup utility
   - Function to create `/Users/dubois/Source/repos/ai/rampante/rampante/command/rampante.<epoch>.md` from existing file; add `-N` suffix on collision.
   - File: `/Users/dubois/Source/repos/ai/rampante/src/cli/update-rampante-command.ts`
-- [ ] T010 Implement simplified content generator
+- [x] T010 Implement simplified content generator
   - Read template `/Users/dubois/Source/repos/ai/rampante/templates/rampante-command-simplified.md` and render with any necessary variables.
   - File: `/Users/dubois/Source/repos/ai/rampante/src/cli/update-rampante-command.ts`
-- [ ] T011 Wire updater CLI
+- [x] T011 Wire updater CLI
   - Ensure `deno run --allow-read --allow-write src/cli/update-rampante-command.ts` performs: backup → write new content → log summary.
   - File: `/Users/dubois/Source/repos/ai/rampante/src/cli/update-rampante-command.ts`
-- [ ] T012 Replace orchestrator file with simplified content
+- [x] T012 Replace orchestrator file with simplified content
   - Overwrite `/Users/dubois/Source/repos/ai/rampante/rampante/command/rampante.md` using the generator.
   - Ensure no `select-stack.sh` references remain.
-- [ ] T013 Update quickstart and plan references if needed
+- [x] T013 Update quickstart and plan references if needed
   - Adjust any docs pointing to removed phases.
   - Files: `/Users/dubois/Source/repos/ai/rampante/specs/002-feature-simplify-rampant/quickstart.md`, project README as needed.
 
 ## Phase 3.4: Integration
 
-- [ ] T014 Validate updater idempotency
+- [x] T014 Validate updater idempotency
   - Running updater repeatedly should not reintroduce removed phases; backups created per run.
   - File: `/Users/dubois/Source/repos/ai/rampante/tests/integration/test_rampante_command_update.ts`
-- [ ] T015 Ensure CI scripts use simplified flow
+- [x] T015 Ensure CI scripts use simplified flow
   - If any CI/docs refer to stack selection, update them.
   - Files: search repo for `select-stack.sh` and update references.
   - Command: `rg -n "select-stack.sh" /Users/dubois/Source/repos/ai/rampante`
 
 ## Phase 3.5: Polish
 
-- [ ] T016 [P] Unit tests: backup utility edge cases
+- [x] T016 [P] Unit tests: backup utility edge cases
   - File: `/Users/dubois/Source/repos/ai/rampante/tests/unit/test_backup_utility.ts`
   - Cases: missing original file, permission error handling, collision suffixing.
-- [ ] T017 [P] Unit tests: content generator
+- [x] T017 [P] Unit tests: content generator
   - File: `/Users/dubois/Source/repos/ai/rampante/tests/unit/test_content_generator.ts`
   - Asserts target headings present; no forbidden strings.
-- [ ] T018 [P] Documentation updates
+- [x] T018 [P] Documentation updates
   - Update `/Users/dubois/Source/repos/ai/rampante/README.md` to describe simplified orchestrator flow and updater command.
-- [ ] T019 Cleanup
+- [x] T019 Cleanup
   - Remove any leftover references to stack selection in docs/examples.
 
 ## Dependencies

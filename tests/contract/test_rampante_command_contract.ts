@@ -6,6 +6,7 @@ const REPO_ROOT = dirname(dirname(dirname(fromFileUrl(import.meta.url))));
 
 Deno.test("Contract: creates timestamped backup before modification", async () => {
   const tmp = await Deno.makeTempDir({ prefix: "rampante-contract-" });
+  await Deno.mkdir(join(tmp, "scripts"), { recursive: true });
   const cmdDir = join(tmp, "rampante", "command");
   await Deno.mkdir(cmdDir, { recursive: true });
   const original = join(cmdDir, "rampante.md");
