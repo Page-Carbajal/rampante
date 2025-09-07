@@ -3,20 +3,20 @@ import { exists } from "@std/fs";
 import { join } from "@std/path";
 
 /**
- * Integration test: rampant workflow happy path
- * Tests the complete rampant command workflow from start to finish
+ * Integration test: rampante workflow happy path
+ * Tests the complete rampante command workflow from start to finish
  */
-Deno.test("Integration: Rampant workflow happy path", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-workflow-" });
+Deno.test("Integration: Rampante workflow happy path", async () => {
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-workflow-" });
   const originalCwd = Deno.cwd();
   
   try {
     Deno.chdir(testDir);
     
-    // Setup: Create required files for rampant workflow
+    // Setup: Create required files for rampante workflow
     await Deno.mkdir("recommended-stacks", { recursive: true });
     await Deno.mkdir("specs", { recursive: true });
-    await Deno.mkdir("rampant-command", { recursive: true });
+    await Deno.mkdir("rampante/command", { recursive: true });
     
     // Create DEFINITIONS.md with multiple stacks
     const definitionsContent = `# Stack Definitions
@@ -113,11 +113,11 @@ A Node.js API server with modern tooling and best practices.
 `;
     await Deno.writeTextFile("recommended-stacks/NODE_API.md", nodeApiContent);
     
-    // Create rampant command file
-    const rampantContent = `# Rampant Command
+    // Create rampante command file
+    const rampanteContent = `# Rampante Command
 
 ## Usage
-/rampant "<main prompt>"
+/rampante "<main prompt>"
 
 ## Workflow
 1. Determine project type from prompt via /recommended-stacks/DEFINITIONS.md
@@ -130,13 +130,13 @@ A Node.js API server with modern tooling and best practices.
 8. Write specs/PROJECT-OVERVIEW.md (always overwrite)
 
 ## Examples
-/rampant "Create a simple todo app"
-/rampant "Build a React dashboard"
-/rampant "Make a REST API for user management"
+/rampante "Create a simple todo app"
+/rampante "Build a React dashboard"
+/rampante "Make a REST API for user management"
 `;
-    await Deno.writeTextFile("rampant-command/rampant.md", rampantContent);
+    await Deno.writeTextFile("rampante/command/rampante.md", rampanteContent);
     
-    // Simulate rampant workflow execution
+    // Simulate rampante workflow execution
     const testPrompt = "Create a simple todo application for managing daily tasks";
     
     // Step 1: Determine project type and select stack
@@ -214,8 +214,8 @@ A simple todo application for managing daily tasks with clean, intuitive interfa
   }
 });
 
-Deno.test("Integration: Rampant workflow handles stack selection", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-stack-selection-" });
+Deno.test("Integration: Rampante workflow handles stack selection", async () => {
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-stack-selection-" });
   const originalCwd = Deno.cwd();
   
   try {
@@ -281,8 +281,8 @@ Deno.test("Integration: Rampant workflow handles stack selection", async () => {
   }
 });
 
-Deno.test("Integration: Rampant workflow generates complete project overview", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-overview-" });
+Deno.test("Integration: Rampante workflow generates complete project overview", async () => {
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-overview-" });
   const originalCwd = Deno.cwd();
   
   try {
@@ -320,7 +320,7 @@ A modern React-based web application with best practices.
 `;
     await Deno.writeTextFile("recommended-stacks/REACT_WEB_APP.md", reactStackContent);
     
-    // Simulate rampant workflow for React app
+    // Simulate rampante workflow for React app
     const prompt = "Create a React dashboard for data visualization";
     const selectedStack = "REACT_WEB_APP";
     

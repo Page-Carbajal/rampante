@@ -1,4 +1,4 @@
-# Implementation Plan: Multi-CLI Rampant Slash Command (Phase 1: Codex)
+# Implementation Plan: Multi-CLI Rampante Slash Command (Phase 1: Codex)
 
 **Branch**: `001-feature-phase-1` | **Date**: 2025-09-07 | **Spec**: /Users/dubois/Source/repos/ai/rampante/specs/001-feature-phase-1/spec.md
 **Input**: Feature specification from `/specs/001-feature-phase-1/spec.md`
@@ -32,25 +32,25 @@
 
 ## Summary
 
-Provide a Deno-invoked installer command `deno run npm:run-rampant install <cli>` (Phase 1 implements `<cli>=codex`) that:
+Provide a Deno-invoked installer command `deno run npm:run-rampante install <cli>` (Phase 1 implements `<cli>=codex`) that:
 
 - Configures context7 in the CLI’s config (Codex: `~/.codex/config.toml`).
 - Installs `/recommended-stacks` with `DEFINITIONS.md` and initial stack files into the current directory.
-- Installs and registers the unified slash command `/rampant` for the target CLI (Codex: copy `/rampant-command/rampant.md` to `~/.codex/prompts`).
+- Installs and registers the unified slash command `/rampante` for the target CLI (Codex: copy `/rampante/command/rampante.md` to `~/.codex/prompts`).
 
-Then running `/rampant "<main prompt>"` executes the end-to-end Spec Kit workflow: infer project type, select stack via YOLO strategy from definitions, fetch latest docs for the selected stack via context7 MCP, run `/specify`, `/plan`, `/tasks`, and write `specs/PROJECT-OVERVIEW.md` (always overwrite). Phase 2 will prioritize support for Claude Code and Gemini.
+Then running `/rampante "<main prompt>"` executes the end-to-end Spec Kit workflow: infer project type, select stack via YOLO strategy from definitions, fetch latest docs for the selected stack via context7 MCP, run `/specify`, `/plan`, `/tasks`, and write `specs/PROJECT-OVERVIEW.md` (always overwrite). Phase 2 will prioritize support for Claude Code and Gemini.
 
 Priority execution order (TDD-aligned)
 
-1. Create `/rampant-command/rampant.md` (Codex slash command file) first, so contract tests can run immediately against a concrete artifact.
+1. Create `/rampante/command/rampante.md` (Codex slash command file) first, so contract tests can run immediately against a concrete artifact.
 2. Create `/recommended-stacks` with `DEFINITIONS.md` and initial stack files next, enabling stack selection tests and planning.
-3. Implement the Deno installer CLI (`deno run npm:run-rampant install <cli>`, Phase 1: `codex`) last, wiring config, idempotency, and registration.
+3. Implement the Deno installer CLI (`deno run npm:run-rampante install <cli>`, Phase 1: `codex`) last, wiring config, idempotency, and registration.
 
 ## Technical Context
 
 **Language/Version**: Deno v2.4 (required)
 **Primary Dependencies**: context7 MCP via `npx @upstash/context7-mcp`, file system operations, CLI environment (Codex in Phase 1)
-**Storage**: Files in current directory (`/recommended-stacks`, `/rampant-command`) and user config at `~/.codex/config.toml`
+**Storage**: Files in current directory (`/recommended-stacks`, `/rampante/command`) and user config at `~/.codex/config.toml`
 **Testing**: CLI contract/integration tests (shell-based), idempotency checks; no backend services
 **Target Platform**: Developer machines (macOS/Linux; Windows WSL acceptable)
 **Project Type**: single (CLI + files)
@@ -60,8 +60,8 @@ Priority execution order (TDD-aligned)
 
 User-provided details ($ARGUMENTS):
 
-- Entry command: `deno run npm:run-rampant install <cli>`; Phase 1 supports `codex`.
-- Register `/rampant` for Codex at `~/.codex/prompts` by copying `/rampant-command/rampant.md`.
+- Entry command: `deno run npm:run-rampante install <cli>`; Phase 1 supports `codex`.
+- Register `/rampante` for Codex at `~/.codex/prompts` by copying `/rampante/command/rampante.md`.
 - context7 config block to add to `~/.codex/config.toml` and create file if missing.
 - YOLO stack selection, deterministic tie-break; install `/recommended-stacks` in CWD.
 - Overwrite policy: always overwrite `specs/PROJECT-OVERVIEW.md`; idempotent re-runs; `--force` option.
@@ -81,8 +81,8 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 **Architecture**:
 
 - Feature packaged as a CLI utility with minimal library code
-- Libraries: installer (sets up config/assets), runner template (rampant.md content)
-- CLI entry: `deno run npm:run-rampant install <cli>`; `/rampant` as user-facing command
+- Libraries: installer (sets up config/assets), runner template (rampante.md content)
+- CLI entry: `deno run npm:run-rampante install <cli>`; `/rampante` as user-facing command
 - Documentation: spec + plan + quickstart; llms.txt not required for Phase 1
 
 **Testing (NON-NEGOTIABLE)**:
@@ -198,7 +198,7 @@ _Prerequisites: research.md complete_
 - One test file per endpoint
 - Assert request/response schemas
 - Tests must fail (no implementation yet)
-- Include CLI contract tests asserting existence and shape of `/rampant-command/rampant.md` (Priority #1)
+- Include CLI contract tests asserting existence and shape of `/rampante/command/rampante.md` (Priority #1)
 
 4. **Extract test scenarios** from user stories:
    - Each story → integration test scenario
@@ -212,7 +212,7 @@ _Prerequisites: research.md complete_
    - Keep under 150 lines for token efficiency
    - Output to repository root
 
-**Output**: data-model.md, /contracts/\*, failing tests (plan-level), quickstart.md, and a concrete command template file to be created first during implementation: `/rampant-command/rampant.md`
+**Output**: data-model.md, /contracts/\*, failing tests (plan-level), quickstart.md, and a concrete command template file to be created first during implementation: `/rampante/command/rampante.md`
 
 ## Phase 2: Task Planning Approach
 
@@ -233,7 +233,7 @@ _This section describes what the /tasks command will do - DO NOT execute during 
 - Dependency order: Models before services before UI
 - Mark [P] for parallel execution (independent files)
 - Priority order for this feature:
-  1.  Create `/rampant-command/rampant.md` (Codex command file) and its contract tests
+  1.  Create `/rampante/command/rampante.md` (Codex command file) and its contract tests
   2.  Create `/recommended-stacks` with `DEFINITIONS.md` and initial stack files (+ tests)
   3.  Implement the Deno installer CLI with idempotency and `--force` (+ contract/integration tests)
 

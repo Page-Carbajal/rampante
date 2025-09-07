@@ -1,6 +1,6 @@
 # Stack Definitions
 
-This file contains all available technology stacks for the Rampant system. Each stack is designed for specific project types and includes recommended technologies, patterns, and best practices.
+This file contains all available technology stacks for the Rampante system. Each stack is designed for specific project types and includes recommended technologies, patterns, and best practices.
 
 ## Stack Selection Rules
 

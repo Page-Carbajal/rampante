@@ -5,12 +5,12 @@ import { tmpdir } from "@std/os";
 
 /**
  * Contract test for installer CLI
- * Verifies creation of rampant.md and DEFINITIONS.md in CWD
+ * Verifies creation of rampante.md and DEFINITIONS.md in CWD
  * Verifies idempotent re-run (no duplicates) and --force recreation
- * Verifies Codex registration copies to ~/.codex/prompts/rampant.md
+ * Verifies Codex registration copies to ~/.codex/prompts/rampante.md
  */
 Deno.test("Contract: Installer creates required files in CWD", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-test-" });
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-test-" });
   const originalCwd = Deno.cwd();
   
   try {
@@ -27,17 +27,17 @@ Deno.test("Contract: Installer creates required files in CWD", async () => {
     // Verify exit code is 0
     assertEquals(result.code, 0, "Installer should succeed");
     
-    // Verify rampant-command/rampant.md exists
-    const rampantMdPath = join(testDir, "rampant-command", "rampant.md");
-    assertEquals(await exists(rampantMdPath), true, "rampant.md should be created");
+    // Verify rampante/command/rampante.md exists
+    const rampanteMdPath = join(testDir, "rampante/command", "rampante.md");
+    assertEquals(await exists(rampanteMdPath), true, "rampante.md should be created");
     
     // Verify recommended-stacks/DEFINITIONS.md exists
     const definitionsPath = join(testDir, "recommended-stacks", "DEFINITIONS.md");
     assertEquals(await exists(definitionsPath), true, "DEFINITIONS.md should be created");
     
     // Verify content is not empty
-    const rampantContent = await Deno.readTextFile(rampantMdPath);
-    assertExists(rampantContent, "rampant.md should not be empty");
+    const rampanteContent = await Deno.readTextFile(rampanteMdPath);
+    assertExists(rampanteContent, "rampante.md should not be empty");
     
     const definitionsContent = await Deno.readTextFile(definitionsPath);
     assertExists(definitionsContent, "DEFINITIONS.md should not be empty");
@@ -49,7 +49,7 @@ Deno.test("Contract: Installer creates required files in CWD", async () => {
 });
 
 Deno.test("Contract: Installer is idempotent (no duplicates)", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-test-" });
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-test-" });
   const originalCwd = Deno.cwd();
   
   try {
@@ -67,10 +67,10 @@ Deno.test("Contract: Installer is idempotent (no duplicates)", async () => {
     assertEquals(result1.code, 0, "First install should succeed");
     
     // Get file stats after first run
-    const rampantMdPath = join(testDir, "rampant-command", "rampant.md");
+    const rampanteMdPath = join(testDir, "rampante/command", "rampante.md");
     const definitionsPath = join(testDir, "recommended-stacks", "DEFINITIONS.md");
     
-    const rampantStat1 = await Deno.stat(rampantMdPath);
+    const rampanteStat1 = await Deno.stat(rampanteMdPath);
     const definitionsStat1 = await Deno.stat(definitionsPath);
     
     // Second run (should be idempotent)
@@ -83,10 +83,10 @@ Deno.test("Contract: Installer is idempotent (no duplicates)", async () => {
     assertEquals(result2.code, 0, "Second install should succeed");
     
     // Verify files weren't modified (same mtime)
-    const rampantStat2 = await Deno.stat(rampantMdPath);
+    const rampanteStat2 = await Deno.stat(rampanteMdPath);
     const definitionsStat2 = await Deno.stat(definitionsPath);
     
-    assertEquals(rampantStat1.mtime, rampantStat2.mtime, "rampant.md should not be modified on re-run");
+    assertEquals(rampanteStat1.mtime, rampanteStat2.mtime, "rampante.md should not be modified on re-run");
     assertEquals(definitionsStat1.mtime, definitionsStat2.mtime, "DEFINITIONS.md should not be modified on re-run");
     
   } finally {
@@ -96,7 +96,7 @@ Deno.test("Contract: Installer is idempotent (no duplicates)", async () => {
 });
 
 Deno.test("Contract: Installer --force recreates assets", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-test-" });
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-test-" });
   const originalCwd = Deno.cwd();
   
   try {
@@ -126,14 +126,14 @@ Deno.test("Contract: Installer --force recreates assets", async () => {
     assertEquals(result2.code, 0, "Force install should succeed");
     
     // Verify files were recreated (different mtime)
-    const rampantMdPath = join(testDir, "rampant-command", "rampant.md");
+    const rampanteMdPath = join(testDir, "rampante/command", "rampante.md");
     const definitionsPath = join(testDir, "recommended-stacks", "DEFINITIONS.md");
     
-    const rampantStat1 = await Deno.stat(rampantMdPath);
+    const rampanteStat1 = await Deno.stat(rampanteMdPath);
     const definitionsStat1 = await Deno.stat(definitionsPath);
     
     // Files should exist and be recent
-    assertExists(rampantStat1.mtime, "rampant.md should have mtime");
+    assertExists(rampanteStat1.mtime, "rampante.md should have mtime");
     assertExists(definitionsStat1.mtime, "DEFINITIONS.md should have mtime");
     
   } finally {
@@ -143,7 +143,7 @@ Deno.test("Contract: Installer --force recreates assets", async () => {
 });
 
 Deno.test("Contract: Installer registers with Codex", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-test-" });
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-test-" });
   const originalCwd = Deno.cwd();
   
   try {
@@ -168,12 +168,12 @@ Deno.test("Contract: Installer registers with Codex", async () => {
     
     assertEquals(result.code, 0, "Installer should succeed");
     
-    // Verify rampant.md was copied to ~/.codex/prompts/
-    const codexRampantPath = join(codexPromptsDir, "rampant.md");
-    assertEquals(await exists(codexRampantPath), true, "rampant.md should be copied to Codex prompts");
+    // Verify rampante.md was copied to ~/.codex/prompts/
+    const codexRampantPath = join(codexPromptsDir, "rampante.md");
+    assertEquals(await exists(codexRampantPath), true, "rampante.md should be copied to Codex prompts");
     
     // Verify content matches
-    const originalContent = await Deno.readTextFile(join(testDir, "rampant-command", "rampant.md"));
+    const originalContent = await Deno.readTextFile(join(testDir, "rampante/command", "rampante.md"));
     const codexContent = await Deno.readTextFile(codexRampantPath);
     assertEquals(codexContent, originalContent, "Codex copy should match original");
     
@@ -190,7 +190,7 @@ Deno.test("Contract: Installer registers with Codex", async () => {
 });
 
 Deno.test("Contract: Installer handles unsupported CLI target", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-test-" });
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-test-" });
   const originalCwd = Deno.cwd();
   
   try {
@@ -213,5 +213,7 @@ Deno.test("Contract: Installer handles unsupported CLI target", async () => {
   } finally {
     Deno.chdir(originalCwd);
     await Deno.remove(testDir, { recursive: true });
+  }
+});;
   }
 });

@@ -3,18 +3,18 @@ import { exists } from "@std/fs";
 import { join } from "@std/path";
 
 /**
- * Contract test for rampant runner CLI
- * Asserts /rampant produces specs/PROJECT-OVERVIEW.md and uses YOLO stack selection
+ * Contract test for rampante runner CLI
+ * Asserts /rampante produces specs/PROJECT-OVERVIEW.md and uses YOLO stack selection
  * Asserts fail-hard when context7 unavailable (invalid API key) with clear message
  */
 Deno.test("Contract: Rampant runner produces PROJECT-OVERVIEW.md", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-test-" });
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-test-" });
   const originalCwd = Deno.cwd();
   
   try {
     Deno.chdir(testDir);
     
-    // Create required files for rampant runner
+    // Create required files for rampante runner
     await Deno.mkdir("recommended-stacks", { recursive: true });
     await Deno.mkdir("specs", { recursive: true });
     
@@ -51,11 +51,11 @@ A simple web application stack for rapid development.
 `;
     await Deno.writeTextFile("recommended-stacks/SIMPLE_WEB_APP.md", stackContent);
     
-    // Create rampant.md command file
-    const rampantContent = `# Rampant Command
+    // Create rampante.md command file
+    const rampanteContent = `# Rampante Command
 
 ## Usage
-/rampant "<main prompt>"
+/rampante "<main prompt>"
 
 ## Workflow
 1. Determine project type from prompt via /recommended-stacks/DEFINITIONS.md
@@ -67,14 +67,14 @@ A simple web application stack for rapid development.
 7. Run /tasks (with prompt "Generate the MVP for this project")
 8. Write specs/PROJECT-OVERVIEW.md (always overwrite)
 `;
-    await Deno.writeTextFile("rampant-command/rampant.md", rampantContent);
+    await Deno.writeTextFile("rampante/command/rampante.md", rampanteContent);
     
-    // Mock the rampant runner (this would normally be triggered by Codex)
+    // Mock the rampante runner (this would normally be triggered by Codex)
     // For contract test, we'll simulate the behavior
     const projectOverviewContent = `# Project Overview – Test Project
 
 ## Purpose
-Test project for rampant runner contract verification.
+Test project for rampante runner contract verification.
 
 ## Execution Priorities
 1. Verify PROJECT-OVERVIEW.md generation
@@ -103,8 +103,8 @@ Test project for rampant runner contract verification.
   }
 });
 
-Deno.test("Contract: Rampant runner uses YOLO stack selection", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-test-" });
+Deno.test("Contract: Rampante runner uses YOLO stack selection", async () => {
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-test-" });
   const originalCwd = Deno.cwd();
   
   try {
@@ -157,8 +157,8 @@ Deno.test("Contract: Rampant runner uses YOLO stack selection", async () => {
   }
 });
 
-Deno.test("Contract: Rampant runner fails hard when context7 unavailable", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-test-" });
+Deno.test("Contract: Rampante runner fails hard when context7 unavailable", async () => {
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-test-" });
   const originalCwd = Deno.cwd();
   
   try {
@@ -195,8 +195,8 @@ Deno.test("Contract: Rampant runner fails hard when context7 unavailable", async
   }
 });
 
-Deno.test("Contract: Rampant runner handles missing definitions gracefully", async () => {
-  const testDir = await Deno.makeTempDir({ prefix: "rampant-test-" });
+Deno.test("Contract: Rampante runner handles missing definitions gracefully", async () => {
+  const testDir = await Deno.makeTempDir({ prefix: "rampante-test-" });
   const originalCwd = Deno.cwd();
   
   try {
@@ -204,7 +204,7 @@ Deno.test("Contract: Rampant runner handles missing definitions gracefully", asy
     
     // Don't create DEFINITIONS.md - simulate missing file scenario
     
-    // Simulate rampant runner trying to read missing definitions
+    // Simulate rampante runner trying to read missing definitions
     const definitionsPath = join(testDir, "recommended-stacks", "DEFINITIONS.md");
     const definitionsExists = await exists(definitionsPath);
     

@@ -8,26 +8,26 @@
 Project Snapshot
 
 - Branch: 001-feature-phase-1
-- Feature: Multi-CLI Rampant Slash Command (Phase 1: Codex)
+- Feature: Multi-CLI Rampante Slash Command (Phase 1: Codex)
 - Primary CLI Target: Codex (Phase 2 priorities: Claude Code, Gemini)
-- Installer Entry Command: `deno run npm:run-rampant install codex`
+- Installer Entry Command: `deno run npm:run-rampante install codex`
 - Runtime Requirements: Deno v2.4+, network for context7 MCP
 
 Key Artifacts (absolute paths)
 
-- Spec: /Users/dubois/Source/repos/ai/rampante/specs/001-feature-phase-1/spec.md
-- Plan: /Users/dubois/Source/repos/ai/rampante/specs/001-feature-phase-1/plan.md
-- Research: /Users/dubois/Source/repos/ai/rampante/specs/001-feature-phase-1/research.md
-- Data Model: /Users/dubois/Source/repos/ai/rampante/specs/001-feature-phase-1/data-model.md
-- Contracts: /Users/dubois/Source/repos/ai/rampante/specs/001-feature-phase-1/contracts/
-- Quickstart: /Users/dubois/Source/repos/ai/rampante/specs/001-feature-phase-1/quickstart.md
-- Tasks (start here): /Users/dubois/Source/repos/ai/rampante/specs/001-feature-phase-1/tasks.md
+- Spec: /Users/dubois/Source/repos/ai/rampantee/specs/001-feature-phase-1/spec.md
+- Plan: /Users/dubois/Source/repos/ai/rampantee/specs/001-feature-phase-1/plan.md
+- Research: /Users/dubois/Source/repos/ai/rampantee/specs/001-feature-phase-1/research.md
+- Data Model: /Users/dubois/Source/repos/ai/rampantee/specs/001-feature-phase-1/data-model.md
+- Contracts: /Users/dubois/Source/repos/ai/rampantee/specs/001-feature-phase-1/contracts/
+- Quickstart: /Users/dubois/Source/repos/ai/rampantee/specs/001-feature-phase-1/quickstart.md
+- Tasks (start here): /Users/dubois/Source/repos/ai/rampantee/specs/001-feature-phase-1/tasks.md
 
 ---
 
 ## Execution Priorities (from plan)
 
-1. Create `/rampant-command/rampant.md` first to enable contract tests.
+1. Create `/rampantee/command/rampante.md` first to enable contract tests.
 2. Create `/recommended-stacks` with `DEFINITIONS.md` + initial stack specs.
 3. Implement the Deno installer CLI and wire config/registration/idempotency.
 
