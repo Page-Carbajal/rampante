@@ -1,7 +1,6 @@
-import { assertEquals, assertExists } from "@std/assert";
-import { ensureDir, exists } from "@std/fs";
-import { join } from "@std/path";
-import { tmpdir } from "@std/os";
+import { assertEquals, assertExists } from "https://deno.land/std@0.208.0/testing/asserts.ts";
+import { ensureDir, exists } from "https://deno.land/std@0.208.0/fs/mod.ts";
+import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
 
 /**
  * Contract test for installer CLI
@@ -146,6 +145,9 @@ Deno.test("Contract: Installer registers with Codex", async () => {
   const testDir = await Deno.makeTempDir({ prefix: "rampante-test-" });
   const originalCwd = Deno.cwd();
   
+  // Set up originalHome outside try block
+  const originalHome = Deno.env.get("HOME");
+  
   try {
     Deno.chdir(testDir);
     
@@ -155,7 +157,6 @@ Deno.test("Contract: Installer registers with Codex", async () => {
     await ensureDir(codexPromptsDir);
     
     // Set HOME environment variable
-    const originalHome = Deno.env.get("HOME");
     Deno.env.set("HOME", mockHome);
     
     const installerPath = join(originalCwd, "src/cli/install.ts");
@@ -213,7 +214,5 @@ Deno.test("Contract: Installer handles unsupported CLI target", async () => {
   } finally {
     Deno.chdir(originalCwd);
     await Deno.remove(testDir, { recursive: true });
-  }
-});;
   }
 });
