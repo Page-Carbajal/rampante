@@ -3,3 +3,10 @@
 memory/
 scripts/
 templates/
+
+# Rampant project artifacts
+tmp/
+.DS_Store
+*.log
+*.tmp
+test-artifacts/

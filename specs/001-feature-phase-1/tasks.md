@@ -22,28 +22,28 @@
 
 ## Phase 3.1: Setup
 
-- [ ] T001 Create project directories at `/Users/dubois/Source/repos/ai/rampante`:
+- [x] T001 Create project directories at `/Users/dubois/Source/repos/ai/rampante`:
       `src/cli`, `src/services`, `src/lib`, `tests/contract`, `tests/integration`, `tests/unit`, `rampant-command`, `recommended-stacks`.
-- [ ] T002 Create minimal Deno config `/Users/dubois/Source/repos/ai/rampante/deno.json` with permissions and fmt/lint settings.
-- [ ] T003 [P] Add `.gitignore` entries for `tmp/`, `.DS_Store`, and transient test artifacts.
+- [x] T002 Create minimal Deno config `/Users/dubois/Source/repos/ai/rampante/deno.json` with permissions and fmt/lint settings.
+- [x] T003 [P] Add `.gitignore` entries for `tmp/`, `.DS_Store`, and transient test artifacts.
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 
 Contract tests (from contracts/cli-contracts.md)
 
-- [ ] T004 [P] Create contract test for installer at `/Users/dubois/Source/repos/ai/rampante/tests/contract/test_installer.ts`: - Verifies creation of `/Users/dubois/Source/repos/ai/rampante/rampant-command/rampant.md` and `/Users/dubois/Source/repos/ai/rampante/recommended-stacks/DEFINITIONS.md` in CWD. - Verifies idempotent re-run (no duplicates) and `--force` recreation. - Verifies Codex registration copies to `~/.codex/prompts/rampant.md` (simulate home in temp).
-- [ ] T005 [P] Create contract test for runner at `/Users/dubois/Source/repos/ai/rampante/tests/contract/test_rampant_runner.ts`: - Asserts `/rampant` produces `specs/PROJECT-OVERVIEW.md` and uses YOLO stack selection. - Asserts fail-hard when context7 unavailable (invalid API key) with clear message.
+- [x] T004 [P] Create contract test for installer at `/Users/dubois/Source/repos/ai/rampante/tests/contract/test_installer.ts`: - Verifies creation of `/Users/dubois/Source/repos/ai/rampante/rampant-command/rampant.md` and `/Users/dubois/Source/repos/ai/rampante/recommended-stacks/DEFINITIONS.md` in CWD. - Verifies idempotent re-run (no duplicates) and `--force` recreation. - Verifies Codex registration copies to `~/.codex/prompts/rampant.md` (simulate home in temp).
+- [x] T005 [P] Create contract test for runner at `/Users/dubois/Source/repos/ai/rampante/tests/contract/test_rampant_runner.ts`: - Asserts `/rampant` produces `specs/PROJECT-OVERVIEW.md` and uses YOLO stack selection. - Asserts fail-hard when context7 unavailable (invalid API key) with clear message.
 
 Integration tests (from quickstart scenarios)
 
-- [ ] T006 [P] Integration test: first-run install in temp dir at `/Users/dubois/Source/repos/ai/rampante/tests/integration/test_first_run.ts`.
-- [ ] T007 [P] Integration test: idempotent re-run and `--force` at `/Users/dubois/Source/repos/ai/rampante/tests/integration/test_idempotency.ts`.
-- [ ] T008 [P] Integration test: rampant workflow happy path at `/Users/dubois/Source/repos/ai/rampante/tests/integration/test_rampant_flow.ts`.
+- [x] T006 [P] Integration test: first-run install in temp dir at `/Users/dubois/Source/repos/ai/rampante/tests/integration/test_first_run.ts`.
+- [x] T007 [P] Integration test: idempotent re-run and `--force` at `/Users/dubois/Source/repos/ai/rampante/tests/integration/test_idempotency.ts`.
+- [x] T008 [P] Integration test: rampant workflow happy path at `/Users/dubois/Source/repos/ai/rampante/tests/integration/test_rampant_flow.ts`.
 
 Unit tests (for libs/services planned below)
 
-- [ ] T009 [P] Unit tests for fs/path utilities at `/Users/dubois/Source/repos/ai/rampante/tests/unit/test_fs_utils.ts`.
-- [ ] T010 [P] Unit tests for context7 config writer at `/Users/dubois/Source/repos/ai/rampante/tests/unit/test_context7_config.ts`.
+- [x] T009 [P] Unit tests for fs/path utilities at `/Users/dubois/Source/repos/ai/rampante/tests/unit/test_fs_utils.ts`.
+- [x] T010 [P] Unit tests for context7 config writer at `/Users/dubois/Source/repos/ai/rampante/tests/unit/test_context7_config.ts`.
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
