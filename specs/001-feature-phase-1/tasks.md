@@ -66,7 +66,7 @@ Services and Libraries
 
 - [x] T019 Wire installer CLI to services in `/Users/dubois/Source/repos/ai/rampante/src/cli/install.ts` (supports `--force`).
 - [x] T020 Logging and error handling policy across services (clear messages, non-zero exit codes).
-- [ ] T021 Validate runner behavior notes inside `/Users/dubois/Source/repos/ai/rampante/rampante/command/rampante.md` (document phases, outputs).
+- [x] T021 Validate runner behavior notes inside `/Users/dubois/Source/repos/ai/rampante/rampante/command/rampante.md` (document phases, outputs).
 
 ## Phase 3.5: Polish
 
