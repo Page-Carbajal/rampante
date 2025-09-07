@@ -51,16 +51,16 @@ Priority Order (per plan Summary)
 
 - [x] T011 Create Codex command file at `/Users/dubois/Source/repos/ai/rampante/rampante/command/rampante.md` with the `/rampante` workflow: select stack (from DEFINITIONS.md), fetch context7 docs, run `/specify`, `/plan`, `/tasks`, generate `specs/PROJECT-OVERVIEW.md`.
 - [x] T012 Create stacks directory and seed definitions at `/Users/dubois/Source/repos/ai/rampante/recommended-stacks/DEFINITIONS.md` and initial stack spec(s), e.g., `/Users/dubois/Source/repos/ai/rampante/recommended-stacks/SIMPLE_WEB_APP.md`.
-- [ ] T013 Implement Deno installer CLI entry at `/Users/dubois/Source/repos/ai/rampante/src/cli/install.ts` handling:
+- [x] T013 Implement Deno installer CLI entry at `/Users/dubois/Source/repos/ai/rampante/src/cli/install.ts` handling:
       `deno run npm:run-rampante install <cli>` (Phase 1 supports `codex`).
 
 Services and Libraries
 
-- [ ] T014 [P] Implement context7 configuration writer at `/Users/dubois/Source/repos/ai/rampante/src/services/context7_config.ts` (create `~/.codex/config.toml` if missing; add mcp_servers.context7).
-- [ ] T015 [P] Implement assets installer at `/Users/dubois/Source/repos/ai/rampante/src/services/install_assets.ts` (write rampante.md, definitions, initial stacks; idempotent + `--force`).
-- [ ] T016 [P] Implement Codex registration at `/Users/dubois/Source/repos/ai/rampante/src/services/register_rampante.ts` (copy rampante.md to `~/.codex/prompts/rampante.md`).
-- [ ] T017 [P] Implement stack selection helper at `/Users/dubois/Source/repos/ai/rampante/src/lib/stack_selection.ts` (YOLO + deterministic tie-break by order).
-- [ ] T018 [P] Implement fs/path utility helpers at `/Users/dubois/Source/repos/ai/rampante/src/lib/fs_utils.ts` (expand `~`, ensure dirs, safe write, copy, remove).
+- [x] T014 [P] Implement context7 configuration writer at `/Users/dubois/Source/repos/ai/rampante/src/services/context7_config.ts` (create `~/.codex/config.toml` if missing; add mcp_servers.context7).
+- [x] T015 [P] Implement assets installer at `/Users/dubois/Source/repos/ai/rampante/src/services/install_assets.ts` (write rampante.md, definitions, initial stacks; idempotent + `--force`).
+- [x] T016 [P] Implement Codex registration at `/Users/dubois/Source/repos/ai/rampante/src/services/register_rampante.ts` (copy rampante.md to `~/.codex/prompts/rampante.md`).
+- [x] T017 [P] Implement stack selection helper at `/Users/dubois/Source/repos/ai/rampante/src/lib/stack_selection.ts` (YOLO + deterministic tie-break by order).
+- [x] T018 [P] Implement fs/path utility helpers at `/Users/dubois/Source/repos/ai/rampante/src/lib/fs_utils.ts` (expand `~`, ensure dirs, safe write, copy, remove).
 
 ## Phase 3.4: Integration
 
