@@ -7,7 +7,7 @@
  * Future phases will support Claude Code, Gemini, etc.
  */
 
-import { join } from 'https://deno.land/std@0.208.0/path/mod.ts';
+import { join } from '@std/path';
 import { safeCopyFile, ensureDirExists, pathExists, expandHome } from '../lib/fs_utils.ts';
 import { logger, RampanteError, ErrorHandler } from '../lib/logger.ts';
 

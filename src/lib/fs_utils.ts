@@ -7,8 +7,8 @@
  * - Safe file operations (write, copy, remove)
  */
 
-import { join, resolve, dirname } from 'https://deno.land/std@0.208.0/path/mod.ts';
-import { ensureDir, exists, copy } from 'https://deno.land/std@0.208.0/fs/mod.ts';
+import { join, resolve, dirname } from '@std/path';
+import { ensureDir, exists, copy } from '@std/fs';
 
 /**
  * Expand ~ to home directory path

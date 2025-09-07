@@ -1,6 +1,6 @@
-import { assertEquals, assertExists, assert, assertRejects } from "https://deno.land/std@0.208.0/testing/asserts.ts";
-import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
-import { exists } from "https://deno.land/std@0.208.0/fs/mod.ts";
+import { assertEquals, assertExists, assert, assertRejects } from "@std/assert";
+import { join } from "@std/path";
+import { exists } from "@std/fs";
 import { 
   registerRampante, 
   getRegistrationPath, 

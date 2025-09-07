@@ -7,7 +7,7 @@
  * Creates config files if missing and adds mcp_servers.context7 section
  */
 
-import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
+import { join } from "@std/path";
 import {
   ensureDirExists,
   safeWriteFile,

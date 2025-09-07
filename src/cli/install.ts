@@ -11,7 +11,7 @@
  *   deno run npm:run-rampante install codex --force
  */
 
-import { parse as parseArgs } from "https://deno.land/std@0.208.0/flags/mod.ts";
+import { parse as parseArgs } from "@std/flags";
 import { installAssets } from "../services/install_assets.ts";
 import { configureContext7 } from "../services/context7_config.ts";
 import { registerRampante } from "../services/register_rampante.ts";

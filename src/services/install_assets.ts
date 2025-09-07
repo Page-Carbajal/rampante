@@ -8,7 +8,7 @@
  * Supports idempotent operations and --force flag
  */
 
-import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
+import { join } from "@std/path";
 import { safeWriteFile, ensureDirExists, safeRemove } from "../lib/fs_utils.ts";
 import { logger, RampanteError, ErrorHandler } from "../lib/logger.ts";
 
