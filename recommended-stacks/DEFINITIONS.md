@@ -99,6 +99,17 @@ This file contains all available technology stacks for the Rampante system. Each
   - Scheduled tasks
   - Microservices
 
+### GITHUB-WORKFLOWS
+
+- **Description**: CI/CD and automation workflows using GitHub Actions
+- **Tags**: cicd, automation, devops, github, workflow, actions
+- **Priority**: 9
+- **Use Cases**:
+  - Continuous integration
+  - Continuous deployment
+  - Automated testing
+  - Infrastructure as code
+
 ## Adding New Stacks
 
 To add a new stack:
