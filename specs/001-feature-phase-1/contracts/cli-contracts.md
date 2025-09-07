@@ -1,6 +1,7 @@
 # CLI Contracts – Multi-CLI Rampant (Phase 1: Codex)
 
 ## Command: Installer
+
 - Name: `deno run npm:run-rampant install <cli>`
 - Phase 1 Supported `<cli>`: `codex`
 - Preconditions:
@@ -22,6 +23,7 @@
   - Permission denied (home dir) → non-zero exit, actionable guidance
 
 ## Command: Rampant Runner
+
 - Name: `/rampant "<main prompt>"`
 - Behaviors:
   - Determine project type from prompt via `/recommended-stacks/DEFINITIONS.md`
