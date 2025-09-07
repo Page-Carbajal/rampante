@@ -33,7 +33,7 @@ export interface StackSelectionResult {
 /**
  * Select the best stack for a given prompt using YOLO strategy
  */
-export async function selectStack(prompt: string, stacksDir?: string): Promise<StackSelectionResult> {
+export async function selectStack(prompt: string, stacksDir?: string, manualStackName?: string): Promise<StackSelectionResult> {
   const baseDir = stacksDir || Deno.cwd();
   const definitionsPath = join(baseDir, 'recommended-stacks', 'DEFINITIONS.md');
   
@@ -44,42 +44,59 @@ export async function selectStack(prompt: string, stacksDir?: string): Promise<S
   // Parse available stacks
   const stacks = await parseStackDefinitions(definitionsPath);
   
-  // Normalize prompt for matching (lowercase, split into words)
-  const promptWords = prompt.toLowerCase().split(/\s+/);
-  
-  // Try to find matching stacks
   let bestMatch: StackInfo | null = null;
   let matchedTags: string[] = [];
-  let maxMatches = 0;
-  
-  for (const stack of stacks) {
-    const matches = countTagMatches(stack.tags, promptWords);
-    
-    if (matches.count > 0) {
-      // Better match if more tags match, or same matches but better priority/order
-      const isBetter = matches.count > maxMatches || 
-        (matches.count === maxMatches && 
-         (stack.priority < (bestMatch?.priority || Infinity) ||
-          (stack.priority === bestMatch?.priority && stack.order < bestMatch.order)));
-      
-      if (isBetter) {
-        bestMatch = stack;
-        matchedTags = matches.matchedTags;
-        maxMatches = matches.count;
-      }
-    }
-  }
-  
-  // Fallback to lowest priority stack if no matches
   let fallback = false;
   let matchReason = '';
   
-  if (!bestMatch) {
-    fallback = true;
-    bestMatch = findLowestPriorityStack(stacks);
-    matchReason = 'no tag match; fallback to lowest priority';
+  // Handle manual stack override
+  if (manualStackName) {
+    bestMatch = stacks.find(s => s.name === manualStackName) || null;
+    if (!bestMatch) {
+      // Try case-insensitive match
+      bestMatch = stacks.find(s => s.name.toLowerCase() === manualStackName.toLowerCase()) || null;
+    }
+    
+    if (!bestMatch) {
+      throw new Error(`Specified stack '${manualStackName}' not found. Available stacks: ${stacks.map(s => s.name).join(', ')}`);
+    }
+    
+    matchReason = `manually specified stack: ${bestMatch.name}`;
+    matchedTags = bestMatch.tags;
   } else {
-    matchReason = `matched tags: ${matchedTags.join(', ')}`;
+    // YOLO automatic selection
+    // Normalize prompt for matching (lowercase, split into words)
+    const promptWords = prompt.toLowerCase().split(/\s+/);
+    
+    // Try to find matching stacks
+    let maxMatches = 0;
+    
+    for (const stack of stacks) {
+      const matches = countTagMatches(stack.tags, promptWords);
+      
+      if (matches.count > 0) {
+        // Better match if more tags match, or same matches but better priority/order
+        const isBetter = matches.count > maxMatches || 
+          (matches.count === maxMatches && 
+           (stack.priority < (bestMatch?.priority || Infinity) ||
+            (stack.priority === bestMatch?.priority && stack.order < bestMatch.order)));
+        
+        if (isBetter) {
+          bestMatch = stack;
+          matchedTags = matches.matchedTags;
+          maxMatches = matches.count;
+        }
+      }
+    }
+    
+    // Fallback to lowest priority stack if no matches
+    if (!bestMatch) {
+      fallback = true;
+      bestMatch = findLowestPriorityStack(stacks);
+      matchReason = 'no tag match; fallback to lowest priority';
+    } else {
+      matchReason = `matched tags: ${matchedTags.join(', ')}`;
+    }
   }
   
   if (!bestMatch) {

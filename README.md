@@ -121,7 +121,8 @@ Rampante uses an intelligent "YOLO" (You Only Look Once) approach for stack sele
 - **CLI_TOOL** (Priority 3) - Command-line utilities
 - **PYTHON_API** (Priority 4) - Python-based REST APIs
 - **FULL_STACK_NODE** (Priority 5) - Complete Node.js applications
-- **And more...** (8 total predefined stacks)
+- **GITHUB-WORKFLOWS** (Priority 9) - CI/CD with GitHub Actions
+- **And more...** (9 total predefined stacks)
 
 ### Selection Logic
 
@@ -129,6 +130,49 @@ Rampante uses an intelligent "YOLO" (You Only Look Once) approach for stack sele
 2. **Priority Ranking**: Lower priority numbers win in ties
 3. **Deterministic Tie-Breaking**: Uses order in DEFINITIONS.md for final ties
 4. **Fallback Strategy**: Selects most general-purpose stack if no matches found
+
+### Manual Stack Override
+
+You can bypass automatic selection by specifying a stack manually:
+
+```bash
+/rampante --use-stack REACT_SPA "Build a dashboard"
+```
+
+This forces the use of the REACT_SPA stack regardless of prompt content.
+
+### Stack Selection Transparency
+
+Rampante now provides clear feedback about stack selection:
+- **Which stack was selected** and its priority level
+- **Why it was selected** (matched tags, manual override, or fallback)
+- **What technologies** will be documented via Context7
+
+Example output:
+```
+Stack Selection Result:
+- Selected: REACT_SPA
+- Reason: matched tags: react
+- Priority: 2
+- Technologies: React, React Router, React Query
+- Tags: web, frontend, react, spa, javascript, typescript
+```
+
+### Context7 Documentation Filtering
+
+Documentation retrieval is now strictly limited to technologies defined in the selected stack:
+- **Only stack technologies** are documented via Context7
+- **No external technologies** are fetched outside the stack definition
+- **Clear reporting** of which technologies were successfully documented
+
+Example output:
+```
+Context7 Documentation Summary:
+- Stack Technologies: 3 technologies from REACT_SPA
+- Successfully Documented: 3 technologies
+- Technologies: React, React Router, React Query
+- Failed to Document: (none)
+```
 
 ## Troubleshooting
 
