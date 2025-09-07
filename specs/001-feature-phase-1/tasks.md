@@ -70,9 +70,9 @@ Services and Libraries
 
 ## Phase 3.5: Polish
 
-- [ ] T022 [P] Unit tests for stack_selection and register_rampante at `/Users/dubois/Source/repos/ai/rampante/tests/unit/test_stack_and_register.ts`.
-- [ ] T023 [P] Update `/Users/dubois/Source/repos/ai/rampante/specs/001-feature-phase-1/quickstart.md` with any CLI flags (e.g., `--force`).
-- [ ] T024 [P] Add README section for `deno run npm:run-rampante install codex` usage at `/Users/dubois/Source/repos/ai/rampante/README.md`.
+- [x] T022 [P] Unit tests for stack_selection and register_rampante at `/Users/dubois/Source/repos/ai/rampante/tests/unit/test_stack_and_register.ts`.
+- [x] T023 [P] Update `/Users/dubois/Source/repos/ai/rampante/specs/001-feature-phase-1/quickstart.md` with any CLI flags (e.g., `--force`).
+- [x] T024 [P] Add README section for `deno run npm:run-rampante install codex` usage at `/Users/dubois/Source/repos/ai/rampante/README.md`.
 
 ## Dependencies
 
