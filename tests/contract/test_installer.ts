@@ -34,12 +34,24 @@ Deno.test("Contract: Installer creates required files in CWD", async () => {
     const definitionsPath = join(testDir, "recommended-stacks", "DEFINITIONS.md");
     assertEquals(await exists(definitionsPath), true, "DEFINITIONS.md should be created");
     
+    // Verify scripts directory and files exist
+    const selectStackPath = join(testDir, "scripts", "select-stack.sh");
+    const generateOverviewPath = join(testDir, "scripts", "generate-project-overview.sh");
+    assertEquals(await exists(selectStackPath), true, "select-stack.sh should be created");
+    assertEquals(await exists(generateOverviewPath), true, "generate-project-overview.sh should be created");
+    
     // Verify content is not empty
     const rampanteContent = await Deno.readTextFile(rampanteMdPath);
     assertExists(rampanteContent, "rampante.md should not be empty");
     
     const definitionsContent = await Deno.readTextFile(definitionsPath);
     assertExists(definitionsContent, "DEFINITIONS.md should not be empty");
+    
+    const selectStackContent = await Deno.readTextFile(selectStackPath);
+    assertExists(selectStackContent, "select-stack.sh should not be empty");
+    
+    const generateOverviewContent = await Deno.readTextFile(generateOverviewPath);
+    assertExists(generateOverviewContent, "generate-project-overview.sh should not be empty");
     
   } finally {
     Deno.chdir(originalCwd);

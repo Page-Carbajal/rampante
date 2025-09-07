@@ -15,6 +15,7 @@ import { parse as parseArgs } from "https://deno.land/std@0.208.0/flags/mod.ts";
 import { installAssets } from "../services/install_assets.ts";
 import { configureContext7 } from "../services/context7_config.ts";
 import { registerRampante } from "../services/register_rampante.ts";
+import { installScripts } from "../services/install_scripts.ts";
 
 const SUPPORTED_CLIS = ["codex"];
 
@@ -96,11 +97,15 @@ async function main() {
     console.log("Installing assets...");
     await installAssets(force);
 
-    // Step 2: Configure context7 for the target CLI
+    // Step 2: Install required scripts (select-stack.sh, generate-project-overview.sh)
+    console.log("Installing scripts...");
+    await installScripts(force);
+
+    // Step 3: Configure context7 for the target CLI
     console.log("Configuring context7...");
     await configureContext7(cliTarget);
 
-    // Step 3: Register rampante command with target CLI
+    // Step 4: Register rampante command with target CLI
     console.log("Registering rampante command...");
     await registerRampante(cliTarget);
 
