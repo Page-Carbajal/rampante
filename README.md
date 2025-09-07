@@ -15,24 +15,32 @@ Rampante is a multi-CLI slash command system that automates the complete spec-dr
 ### Quick Start
 
 ```bash
-# Install for Codex CLI
-deno run npm:run-rampante install codex
+# Install for Codex CLI (choose one of the following methods)
+
+# Option 1: From JSR (after publishing)
+deno run -A jsr:@page-carbajal/rampante/cli install codex
+
+# Option 2: Directly from GitHub
+deno run -A https://raw.githubusercontent.com/YOUR_USERNAME/rampante/main/cli.ts install codex
+
+# Option 3: From deno.land (after publishing)
+deno run -A https://deno.land/x/rampante/cli.ts install codex
 ```
 
 ### Installation Options
 
 ```bash
 # Basic installation (idempotent)
-deno run npm:run-rampante install codex
+deno run --allow-all src/cli/install.ts install codex
 
 # Force reinstall (recreates all assets)
-deno run npm:run-rampante install codex --force
+deno run --allow-all src/cli/install.ts install codex --force
 
 # Debug mode (verbose logging)
-deno run npm:run-rampante install codex --debug
+deno run --allow-all src/cli/install.ts install codex --debug
 
 # Help and options
-deno run npm:run-rampante install codex --help
+deno run --allow-all src/cli/install.ts install codex --help
 ```
 
 ### CLI Flags
@@ -133,7 +141,7 @@ Rampante uses an intelligent "YOLO" (You Only Look Once) approach for stack sele
 deno --version
 
 # Run with debug mode
-deno run npm:run-rampante install codex --debug
+deno run --allow-all src/cli/install.ts install codex --debug
 ```
 
 **Context7 Unavailable**:
@@ -153,7 +161,7 @@ cat ~/.codex/config.toml
 ls ~/.codex/prompts/rampante.md
 
 # Reinstall with force
-deno run npm:run-rampante install codex --force
+deno run --allow-all src/cli/install.ts install codex --force
 ```
 
 ### Debug Mode
@@ -161,7 +169,7 @@ deno run npm:run-rampante install codex --force
 Enable debug logging to see detailed execution:
 
 ```bash
-deno run npm:run-rampante install codex --debug
+deno run --allow-all src/cli/install.ts install codex --debug
 ```
 
 Debug output includes:
