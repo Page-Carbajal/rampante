@@ -31,21 +31,35 @@ Given the main prompt provided as an argument, execute this deterministically wi
 
 ## Phase 1: Stack Selection and Validation
 
-**Purpose**: Analyze the user prompt and select the most appropriate technology stack using YOLO strategy.
+**Purpose**: Analyze the user prompt and select the most appropriate technology stack using YOLO strategy or manual override.
 
 **Process**:
-- Run `scripts/select-stack.sh --json "$ARGUMENTS"` from the repo root.
-- Parse JSON for: `selected_stack`, `stack_file`, `priority`, `technologies`, and `fallback`.
+- Check if prompt contains `--use-stack STACK_NAME` for manual override
+- Run `scripts/select-stack.sh --json [--use-stack STACK_NAME] "$ARGUMENTS"` from the repo root.
+- Parse JSON for: `selected_stack`, `stack_file`, `priority`, `technologies`, `fallback`, and `match_reason`.
 
 **Expected Outputs**:
 - Selected stack name (e.g., "REACT_SPA", "PYTHON_API")
 - Absolute path to stack definition file
 - List of technologies to fetch documentation for
 - Priority level and fallback indicator
+- Match reason explaining why this stack was selected
+
+**Stack Selection Transparency**:
+After stack selection, report:
+```
+Stack Selection Result:
+- Selected: <selected_stack>
+- Reason: <match_reason>
+- Priority: <priority>
+- Technologies: <comma-separated list>
+- Tags: <stack tags>
+```
 
 **Error Conditions**:
 - If `/recommended-stacks/DEFINITIONS.md` is missing → ERROR "Missing /recommended-stacks/DEFINITIONS.md. Run installer to set up stacks." and **EXIT PROCESS**.
 - If `stack_file` is missing → ERROR "Missing stack file: <stack_file>. Please add it to /recommended-stacks" and **EXIT PROCESS**.
+- If manual stack not found → ERROR with available stacks list and **EXIT PROCESS**.
 
 ## Phase 2: Documentation Context Loading  
 
@@ -61,7 +75,7 @@ Given the main prompt provided as an argument, execute this deterministically wi
 
 ## Phase 3: Live Documentation Retrieval
 
-**Purpose**: Fetch the latest documentation for all selected technologies via context7 MCP.
+**Purpose**: Fetch the latest documentation for ONLY the technologies defined in the selected stack via context7 MCP.
 
 **Process**:
 - **CRITICAL:** If context7 is unavailable for any reason, fail immediately with the exact message:
@@ -70,17 +84,34 @@ Given the main prompt provided as an argument, execute this deterministically wi
   Please ensure context7 is properly configured in ~/.codex/config.toml
   ```
   **EXIT PROCESS**
+- **IMPORTANT: Context7 Restriction**
+  - ONLY fetch documentation for technologies in the `technologies` list from Phase 1
+  - DO NOT fetch documentation for any technology not explicitly listed in the selected stack
+  - If a technology cannot be resolved to a Context7 library ID, log warning but continue with others
 - For each technology in the `technologies` list:
   - Call `resolve-library-id` to map the technology to a Context7-compatible library ID.
   - Then call `get-library-docs` with a sensible token limit (e.g., 3000–6000) and topic focus when applicable.
+  - Track which technologies were successfully documented
 - Combine the results into a concise documentation set (ordered by technology name) to pass into planning.
+
+**Context7 Filtering Report**:
+After documentation retrieval, report:
+```
+Context7 Documentation Summary:
+- Stack Technologies: <count> technologies from <selected_stack>
+- Successfully Documented: <count> technologies
+- Technologies: <list of successfully documented technologies>
+- Failed to Document: <list of any technologies that couldn't be resolved>
+```
 
 **Expected Outputs**:
 - Up-to-date documentation for each selected technology
 - Context7 results summary string: `Using the <SELECTED-STACK> stack with the following technologies and updated documentation: <context7 results summary>`
+- Clear list of which stack technologies were documented
 
 **Error Conditions**:
 - Any context7 MCP failure → show the CRITICAL error and **EXIT PROCESS**
+- Technology resolution failures → log warning but continue with available technologies
 
 ## Phase 4: Specification Generation
 
@@ -219,9 +250,16 @@ Before each phase, validate required conditions:
 ### Phase Completion Tracking
 
 Report progress after each successful phase:
-- **Phase 1 Complete**: Stack selected: `<selected_stack>` (priority: `<priority>`, fallback: `<fallback>`)
+- **Phase 1 Complete**: 
+  - Stack selected: `<selected_stack>` (priority: `<priority>`, fallback: `<fallback>`)
+  - Selection reason: `<match_reason>`
+  - Stack tags: `<tags>`
+  - Technologies to document: `<technology_count>` - `<technology_list>`
 - **Phase 2 Complete**: Context loaded from `<stack_file>`
-- **Phase 3 Complete**: Documentation fetched for `<N>` technologies: `<tech_list>`
+- **Phase 3 Complete**: 
+  - Documentation fetched for `<N>` of `<total>` technologies: `<tech_list>`
+  - Failed to resolve: `<failed_list>` (if any)
+  - Context7 restricted to selected stack technologies only
 - **Phase 4 Complete**: Specification written to `<spec_path>`
 - **Phase 5 Complete**: Implementation plan and artifacts created in `<specs_dir>`
 - **Phase 6 Complete**: Task list generated: `<task_count>` tasks in `<tasks_path>`
@@ -231,6 +269,9 @@ Report progress after each successful phase:
 
 - **Workflow Status**: All 7 phases completed successfully
 - **Selected Stack**: `<selected_stack>` (priority: `<priority>`)
+  - Selection Method: `<automatic/manual>`
+  - Selection Reason: `<match_reason>`
+  - Stack Tags: `<tags>`
 - **Created Branch**: `<branch_name>`
 - **Key Artifacts**:
   - Specification: `<absolute_spec_path>`
@@ -238,7 +279,10 @@ Report progress after each successful phase:
   - Tasks: `<absolute_tasks_path>`
   - Overview: `<absolute_overview_path>`
 - **Technologies**: `<comma_separated_tech_list>`
-- **Context7 Status**: Successfully fetched documentation for `<tech_count>` technologies
+- **Context7 Status**: 
+  - Stack-restricted documentation: YES
+  - Successfully fetched: `<tech_count>` of `<total_count>` technologies
+  - Technologies documented: `<documented_tech_list>`
 - **Task Summary**: Generated `<task_count>` tasks with `<parallel_count>` parallelizable
 
 ### On Failure, report:

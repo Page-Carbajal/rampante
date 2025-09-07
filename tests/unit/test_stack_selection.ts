@@ -1,4 +1,4 @@
-import { assertEquals, assertExists, assert } from "@std/assert";
+import { assertEquals, assertExists, assert, assertRejects } from "@std/assert";
 import { join } from "@std/path";
 import { 
   selectStack, 
@@ -256,7 +256,7 @@ Deno.test("Stack Selection: Handles missing DEFINITIONS.md", async () => {
       await selectStack("test prompt", testDir);
     } catch (error) {
       errorThrown = true;
-      assert(error.message.includes("DEFINITIONS.md not found"), "Should throw meaningful error");
+      assert(error instanceof Error && error.message.includes("DEFINITIONS.md not found"), "Should throw meaningful error");
     }
     
     assertEquals(errorThrown, true, "Should throw error for missing definitions");
@@ -289,7 +289,7 @@ Deno.test("Stack Selection: Handles missing stack file", async () => {
       await selectStack("I want missing test", testDir);
     } catch (error) {
       errorThrown = true;
-      assert(error.message.includes("Missing stack file"), "Should throw meaningful error");
+      assert(error instanceof Error && error.message.includes("Missing stack file"), "Should throw meaningful error");
     }
     
     assertEquals(errorThrown, true, "Should throw error for missing stack file");
@@ -310,6 +310,53 @@ Deno.test("Stack Selection: Multiple word matches increase score", async () => {
     assert(result.matchReason.includes("cli"), "Should mention CLI in match reason");
     assert(result.matchReason.includes("tool"), "Should mention tool in match reason");
     
+  } finally {
+    await Deno.remove(testDir, { recursive: true });
+  }
+});
+
+Deno.test("Stack Selection: Manual override with --use-stack", async () => {
+  const { testDir } = await createTestEnvironment();
+  
+  try {
+    // Manual override should bypass tag matching
+    const result = await selectStack("I want to build a React application", testDir, "CLI_TOOL");
+    
+    assertEquals(result.selectedStack, "CLI_TOOL", "Should select manually specified stack");
+    assertEquals(result.fallback, false, "Should not be fallback");
+    assert(result.matchReason.includes("manually specified"), "Should indicate manual selection");
+    assertEquals(result.technologies.length, 2, "Should extract technologies from CLI_TOOL");
+    
+  } finally {
+    await Deno.remove(testDir, { recursive: true });
+  }
+});
+
+Deno.test("Stack Selection: Manual override with case-insensitive match", async () => {
+  const { testDir } = await createTestEnvironment();
+  
+  try {
+    // Should match case-insensitively
+    const result = await selectStack("test prompt", testDir, "react_spa");
+    
+    assertEquals(result.selectedStack, "REACT_SPA", "Should match case-insensitively");
+    assert(result.matchReason.includes("manually specified"), "Should indicate manual selection");
+    
+  } finally {
+    await Deno.remove(testDir, { recursive: true });
+  }
+});
+
+Deno.test("Stack Selection: Manual override with non-existent stack", async () => {
+  const { testDir } = await createTestEnvironment();
+  
+  try {
+    await assertRejects(
+      () => selectStack("test prompt", testDir, "NON_EXISTENT_STACK"),
+      Error,
+      "Specified stack 'NON_EXISTENT_STACK' not found",
+      "Should throw error for non-existent stack"
+    );
   } finally {
     await Deno.remove(testDir, { recursive: true });
   }
