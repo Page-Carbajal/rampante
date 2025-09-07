@@ -41,9 +41,10 @@ Provide a Deno-invoked installer command `deno run npm:run-rampant install <cli>
 Then running `/rampant "<main prompt>"` executes the end-to-end Spec Kit workflow: infer project type, select stack via YOLO strategy from definitions, fetch latest docs for the selected stack via context7 MCP, run `/specify`, `/plan`, `/tasks`, and write `specs/PROJECT-OVERVIEW.md` (always overwrite). Phase 2 will prioritize support for Claude Code and Gemini.
 
 Priority execution order (TDD-aligned)
-1) Create `/rampant-command/rampant.md` (Codex slash command file) first, so contract tests can run immediately against a concrete artifact.
-2) Create `/recommended-stacks` with `DEFINITIONS.md` and initial stack files next, enabling stack selection tests and planning.
-3) Implement the Deno installer CLI (`deno run npm:run-rampant install <cli>`, Phase 1: `codex`) last, wiring config, idempotency, and registration.
+
+1. Create `/rampant-command/rampant.md` (Codex slash command file) first, so contract tests can run immediately against a concrete artifact.
+2. Create `/recommended-stacks` with `DEFINITIONS.md` and initial stack files next, enabling stack selection tests and planning.
+3. Implement the Deno installer CLI (`deno run npm:run-rampant install <cli>`, Phase 1: `codex`) last, wiring config, idempotency, and registration.
 
 ## Technical Context
 
@@ -193,10 +194,11 @@ _Prerequisites: research.md complete_
    - Output OpenAPI/GraphQL schema to `/contracts/`
 
 3. **Generate contract tests** from contracts:
-  - One test file per endpoint
-  - Assert request/response schemas
-  - Tests must fail (no implementation yet)
-  - Include CLI contract tests asserting existence and shape of `/rampant-command/rampant.md` (Priority #1)
+
+- One test file per endpoint
+- Assert request/response schemas
+- Tests must fail (no implementation yet)
+- Include CLI contract tests asserting existence and shape of `/rampant-command/rampant.md` (Priority #1)
 
 4. **Extract test scenarios** from user stories:
    - Each story → integration test scenario
@@ -230,10 +232,10 @@ _This section describes what the /tasks command will do - DO NOT execute during 
 - TDD order: Tests before implementation
 - Dependency order: Models before services before UI
 - Mark [P] for parallel execution (independent files)
- - Priority order for this feature:
-   1. Create `/rampant-command/rampant.md` (Codex command file) and its contract tests
-   2. Create `/recommended-stacks` with `DEFINITIONS.md` and initial stack files (+ tests)
-   3. Implement the Deno installer CLI with idempotency and `--force` (+ contract/integration tests)
+- Priority order for this feature:
+  1.  Create `/rampant-command/rampant.md` (Codex command file) and its contract tests
+  2.  Create `/recommended-stacks` with `DEFINITIONS.md` and initial stack files (+ tests)
+  3.  Implement the Deno installer CLI with idempotency and `--force` (+ contract/integration tests)
 
 **Estimated Output**: 25-30 numbered, ordered tasks in tasks.md
 
