@@ -1,34 +1,48 @@
 # Release Workflow Contract: Rampante Distribution
 
 ## Trigger Mechanism
-**Event**: Git tag push matching pattern `v*.*.*` (semantic versioning)
+
+**Event**: Pull request merged to main branch
 
 **Examples**:
+
 ```bash
-git tag v0.2.0
-git push origin v0.2.0
-# → Triggers automated release workflow
+git checkout feature-branch
+git commit -m "Add new feature"
+git push origin feature-branch
+
+# Create PR via GitHub UI or CLI
+gh pr create --title "Add new feature" --body "Description"
+
+# When PR is merged to main → Triggers automated release workflow
 ```
 
 ## Workflow Execution
 
 ### Phase 1: Environment Setup
+
 **Inputs**:
-- Git tag version (e.g., "v0.2.0")
-- Repository source code
+
+- Merged PR metadata (commit SHA, PR number, branch name)
+- Repository source code from main branch
 - Template definitions
+- Current version from deno.json or package.json
 
 **Outputs**:
+
 - Validated environment variables
-- Version metadata extracted
+- Auto-incremented version metadata (patch increment by default)
 - Build matrix configured
+- New git tag created automatically
 
 **Expected Duration**: 30-60 seconds
 
-### Phase 2: Template Generation  
+### Phase 2: Template Generation
+
 **Process**: Generate CLI-specific templates in parallel
 
 **For Each CLI** (gemini, codex, cursor, claude-code):
+
 ```yaml
 - name: Generate {CLI} template
   inputs:
@@ -42,14 +56,17 @@ git push origin v0.2.0
 ```
 
 **Quality Gates**:
+
 - Template syntax validation
 - Required field completion check
 - CLI compatibility verification
 
 ### Phase 3: Package Creation
+
 **Process**: Create distribution packages for each CLI
 
 **Package Contents**:
+
 ```
 rampante-{cli}-{version}.zip
 ├── rampante.{ext}           # CLI-specific config file
@@ -63,24 +80,29 @@ rampante-{cli}-{version}.zip
 ```
 
 **Package Validation**:
+
 - File integrity checks
 - Size validation (max 1MB per package)
 - Template syntax verification
 - Required file presence
 
 ### Phase 4: Release Publication
+
 **Artifacts**:
+
 - 4 CLI-specific zip packages
-- SHA256 checksums for each package  
+- SHA256 checksums for each package
 - Release manifest (JSON)
 - Release notes (auto-generated)
 
 **GitHub Release Structure**:
+
 ```
-Release: v0.2.0
+Release: v0.2.0 (auto-generated from PR merge)
+Tag: v0.2.0 (created automatically)
 Assets:
   - rampante-gemini-0.2.0.zip (145KB)
-  - rampante-codex-0.2.0.zip (142KB)  
+  - rampante-codex-0.2.0.zip (142KB)
   - rampante-cursor-0.2.0.zip (148KB)
   - rampante-claude-code-0.2.0.zip (151KB)
   - release-manifest.json (2KB)
@@ -88,6 +110,7 @@ Assets:
 ```
 
 ## Release Manifest Format
+
 ```json
 {
   "version": "0.2.0",
@@ -95,7 +118,7 @@ Assets:
   "packages": [
     {
       "cli": "gemini",
-      "version": "0.2.0", 
+      "version": "0.2.0",
       "downloadUrl": "https://github.com/page-carbajal/rampante/releases/download/v0.2.0/rampante-gemini-0.2.0.zip",
       "checksum": "sha256:abc123...",
       "size": 148654,
@@ -107,9 +130,52 @@ Assets:
 }
 ```
 
+## Version Management
+
+### Automatic Version Increment
+
+**Default Behavior**: Patch version increment on PR merge
+
+- v0.2.0 → v0.2.1 (normal PR merge)
+- Reads current version from `deno.json` version field
+- Creates git tag automatically during release process
+
+**Override Behavior**: PR labels control version bump
+
+- `release:major` → major version bump (v0.2.0 → v1.0.0)
+- `release:minor` → minor version bump (v0.2.0 → v0.3.0)
+- `release:patch` → patch version bump (default)
+- `release:skip` → no release triggered
+
+**Examples**:
+
+```bash
+# Normal PR (patch increment)
+gh pr create --title "Fix bug" --body "Description"
+# Merge → v0.2.0 → v0.2.1
+
+# Minor release PR
+gh pr create --title "Add feature" --body "Description" --label "release:minor"
+# Merge → v0.2.0 → v0.3.0
+
+# Skip release
+gh pr create --title "Update docs" --body "Description" --label "release:skip"
+# Merge → no release triggered
+```
+
+### Version Validation
+
+**Pre-release Checks**:
+
+- Verify current version exists in deno.json
+- Confirm new version doesn't already exist as git tag
+- Validate semantic versioning format
+- Check for version conflicts in manifest
+
 ## Error Handling
 
 ### Template Generation Failures
+
 ```yaml
 - name: Handle template failure
   condition: template_validation_failed
@@ -121,7 +187,8 @@ Assets:
 ```
 
 ### Package Creation Failures
-```yaml  
+
+```yaml
 - name: Handle package failure
   condition: package_creation_failed
   actions:
@@ -132,12 +199,14 @@ Assets:
 ```
 
 ### Partial Release Handling
+
 **When Some Packages Fail**:
+
 ```
 Release Status: Partial Success
 
 ✅ gemini: Package created successfully
-✅ codex: Package created successfully  
+✅ codex: Package created successfully
 ❌ cursor: Template validation failed
 ❌ claude-code: Package creation failed
 
@@ -150,6 +219,7 @@ Actions Taken:
 ## Quality Assurance
 
 ### Automated Tests
+
 ```yaml
 test-matrix:
   - template-validation: Verify all templates pass syntax checks
@@ -159,6 +229,7 @@ test-matrix:
 ```
 
 ### Success Criteria
+
 - [ ] All 4 CLI packages generated successfully
 - [ ] All packages pass integrity validation
 - [ ] Release manifest generated correctly
@@ -167,6 +238,7 @@ test-matrix:
 - [ ] Checksums match uploaded files
 
 ## Performance Requirements
+
 - **Total workflow duration**: < 5 minutes
 - **Individual package generation**: < 30 seconds
 - **Package size**: < 1MB per CLI
@@ -174,7 +246,9 @@ test-matrix:
 - **CDN propagation**: < 10 minutes globally
 
 ## Rollback Procedure
+
 **If Critical Issues Discovered**:
+
 1. Delete GitHub release and tags
 2. Revert problematic changes
 3. Create patch version with fixes
@@ -182,30 +256,37 @@ test-matrix:
 5. Notify users of version recall
 
 **Commands**:
+
 ```bash
 # Emergency rollback
 gh release delete v0.2.0 --yes
 git tag -d v0.2.0
 git push origin :refs/tags/v0.2.0
 
-# Patch release
-git tag v0.2.1
-git push origin v0.2.1
+# Patch release (create hotfix PR)
+git checkout -b hotfix/critical-fix
+git commit -m "Fix critical issue"
+git push origin hotfix/critical-fix
+gh pr create --title "Hotfix: Critical issue" --body "Emergency fix"
+# Merge PR → triggers new automated release
 ```
 
 ## Monitoring and Notifications
 
 ### Success Notifications
+
 - GitHub release published notification
 - Slack/Discord webhook (if configured)
 - Update repository README with latest version
 
 ### Failure Notifications
+
 - GitHub issue created automatically
 - Email notification to maintainers
 - Failure details logged to workflow summary
 
 ### Metrics Tracked
+
 - Release frequency
 - Package download counts
 - Installation success rates
