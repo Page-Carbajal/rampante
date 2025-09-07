@@ -9,18 +9,34 @@
 
 import { join } from 'https://deno.land/std@0.208.0/path/mod.ts';
 import { safeCopyFile, ensureDirExists, pathExists, expandHome } from '../lib/fs_utils.ts';
+import { logger, RampanteError, ErrorHandler } from '../lib/logger.ts';
 
 /**
  * Register rampante command with the specified CLI target
  */
 export async function registerRampante(cliTarget: string): Promise<void> {
-  switch (cliTarget) {
-    case 'codex':
-      await registerWithCodex();
-      break;
-    default:
-      throw new Error(`Unsupported CLI target for registration: ${cliTarget}`);
-  }
+  const registerLogger = logger.scope("Register");
+  
+  return await ErrorHandler.withContext(
+    async () => {
+      registerLogger.debug(`Registering rampante command with ${cliTarget}`);
+      
+      switch (cliTarget) {
+        case 'codex':
+          await registerWithCodex();
+          registerLogger.success(`Rampante command registered with ${cliTarget}`);
+          break;
+        default:
+          throw new RampanteError(
+            `Unsupported CLI target for registration: ${cliTarget}`,
+            "UNSUPPORTED_CLI_TARGET",
+            { cliTarget, supportedTargets: ["codex"] }
+          );
+      }
+    },
+    `Failed to register rampante command with ${cliTarget}`,
+    registerLogger,
+  );
 }
 
 /**
@@ -28,21 +44,36 @@ export async function registerRampante(cliTarget: string): Promise<void> {
  * Copies rampante.md to ~/.codex/prompts/rampante.md
  */
 async function registerWithCodex(): Promise<void> {
+  const registerLogger = logger.scope("CodexRegister");
   const cwd = Deno.cwd();
   const sourceFile = join(cwd, 'rampante', 'command', 'rampante.md');
   const targetDir = expandHome('~/.codex/prompts');
   const targetFile = join(targetDir, 'rampante.md');
   
-  // Verify source file exists
-  if (!await pathExists(sourceFile)) {
-    throw new Error(`Source rampante.md not found at ${sourceFile}. Run asset installation first.`);
-  }
-  
-  // Ensure target directory exists
-  await ensureDirExists(targetDir);
-  
-  // Copy the file (always overwrite for registration)
-  await safeCopyFile(sourceFile, targetFile, { force: true });
+  return await ErrorHandler.withContext(
+    async () => {
+      registerLogger.debug(`Copying ${sourceFile} to ${targetFile}`);
+      
+      // Verify source file exists
+      if (!await pathExists(sourceFile)) {
+        throw new RampanteError(
+          `Source rampante.md not found at ${sourceFile}. Run asset installation first.`,
+          "SOURCE_FILE_MISSING",
+          { sourceFile, expectedLocation: sourceFile }
+        );
+      }
+      
+      // Ensure target directory exists
+      await ensureDirExists(targetDir);
+      
+      // Copy the file (always overwrite for registration)
+      await safeCopyFile(sourceFile, targetFile, { force: true });
+      
+      registerLogger.info("Rampante command file copied to Codex prompts directory");
+    },
+    "Failed to register with Codex",
+    registerLogger,
+  );
 }
 
 /**
@@ -53,7 +84,11 @@ export function getRegistrationPath(cliTarget: string): string {
     case 'codex':
       return expandHome('~/.codex/prompts/rampante.md');
     default:
-      throw new Error(`Unknown CLI target: ${cliTarget}`);
+      throw new RampanteError(
+        `Unknown CLI target: ${cliTarget}`,
+        "UNKNOWN_CLI_TARGET",
+        { cliTarget, supportedTargets: ["codex"] }
+      );
   }
 }
 

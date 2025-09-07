@@ -10,6 +10,7 @@
 
 import { join } from 'https://deno.land/std@0.208.0/path/mod.ts';
 import { ensureDirExists, safeWriteFile, pathExists } from '../lib/fs_utils.ts';
+import { logger, RampanteError, ErrorHandler } from '../lib/logger.ts';
 
 const REQUIRED_SCRIPTS = [
   'select-stack.sh',
@@ -22,25 +23,36 @@ const REQUIRED_SCRIPTS = [
 export async function installScripts(force = false): Promise<void> {
   const cwd = Deno.cwd();
   const scriptsDir = join(cwd, 'scripts');
+  const scriptsLogger = logger.scope("Scripts");
   
-  // Ensure scripts directory exists
-  await ensureDirExists(scriptsDir);
-  
-  try {
-    // Get the repository root (where this script is running from)
-    const currentScriptPath = new URL(import.meta.url).pathname;
-    const repoRoot = currentScriptPath.split('/src/services/')[0];
-    const sourceScriptsDir = join(repoRoot, 'rampante', 'scripts');
-    
-    // Install each required script
-    for (const scriptName of REQUIRED_SCRIPTS) {
-      await installScript(scriptsDir, sourceScriptsDir, scriptName, force);
-    }
-    
-  } catch (error) {
-    const err = error as Error;
-    throw new Error(`Failed to install scripts: ${err.message}`);
-  }
+  return await ErrorHandler.withContext(
+    async () => {
+      scriptsLogger.debug(`Installing scripts to ${scriptsDir}, force=${force}`);
+      
+      // Ensure scripts directory exists
+      await ensureDirExists(scriptsDir);
+      
+      // Get the repository root (where this script is running from)
+      const currentScriptPath = new URL(import.meta.url).pathname;
+      const repoRoot = currentScriptPath.split('/src/services/')[0];
+      const sourceScriptsDir = join(repoRoot, 'rampante', 'scripts');
+      
+      scriptsLogger.debug(`Reading scripts from ${sourceScriptsDir}`);
+      
+      // Install each required script
+      let installedCount = 0;
+      for (const scriptName of REQUIRED_SCRIPTS) {
+        const wasInstalled = await installScript(scriptsDir, sourceScriptsDir, scriptName, force);
+        if (wasInstalled) {
+          installedCount++;
+        }
+      }
+      
+      scriptsLogger.success(`Installed ${installedCount}/${REQUIRED_SCRIPTS.length} scripts`);
+    },
+    "Failed to install scripts",
+    scriptsLogger,
+  );
 }
 
 /**
@@ -51,35 +63,42 @@ async function installScript(
   sourceDir: string,
   scriptName: string,
   force: boolean
-): Promise<void> {
+): Promise<boolean> {
+  const scriptsLogger = logger.scope("ScriptInstall");
   const sourcePath = join(sourceDir, scriptName);
   const targetPath = join(targetDir, scriptName);
   
-  try {
-    // Check if file already exists and we're not forcing
-    if (!force && await pathExists(targetPath)) {
-      console.log(`${scriptName} file already exists! Moving on`);
-      return;
-    }
-    
-    // Read the template script from the repository
-    const scriptContent = await Deno.readTextFile(sourcePath);
-    
-    // Write the script file
-    await safeWriteFile(targetPath, scriptContent, { force });
-    
-    // Make the script executable (Unix-like systems)
-    try {
-      await Deno.chmod(targetPath, 0o755);
-    } catch (error) {
-      // chmod might not be supported on all platforms, continue anyway
-      console.warn(`Warning: Could not make ${scriptName} executable: ${error}`);
-    }
-    
-  } catch (error) {
-    const err = error as Error;
-    throw new Error(`Failed to install script ${scriptName} from ${sourcePath}: ${err.message}`);
-  }
+  return await ErrorHandler.withContext(
+    async () => {
+      scriptsLogger.debug(`Installing ${scriptName} from ${sourcePath} to ${targetPath}`);
+      
+      // Check if file already exists and we're not forcing
+      if (!force && await pathExists(targetPath)) {
+        scriptsLogger.info(`${scriptName} already exists, skipping`);
+        return false;
+      }
+      
+      // Read the template script from the repository
+      const scriptContent = await Deno.readTextFile(sourcePath);
+      
+      // Write the script file
+      await safeWriteFile(targetPath, scriptContent, { force });
+      
+      // Make the script executable (Unix-like systems)
+      try {
+        await Deno.chmod(targetPath, 0o755);
+        scriptsLogger.debug(`Made ${scriptName} executable`);
+      } catch (error) {
+        // chmod might not be supported on all platforms, continue anyway
+        scriptsLogger.warn(`Could not make ${scriptName} executable: ${error}`);
+      }
+      
+      scriptsLogger.info(`Installed ${scriptName}`);
+      return true;
+    },
+    `Failed to install script ${scriptName}`,
+    scriptsLogger,
+  );
 }
 
 /**

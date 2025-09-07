@@ -16,6 +16,7 @@ import { installAssets } from "../services/install_assets.ts";
 import { configureContext7 } from "../services/context7_config.ts";
 import { registerRampante } from "../services/register_rampante.ts";
 import { installScripts } from "../services/install_scripts.ts";
+import { Logger, ErrorHandler } from "../lib/logger.ts";
 
 const SUPPORTED_CLIS = ["codex"];
 
@@ -36,21 +37,23 @@ Supported CLIs (Phase 1):
   codex    - Install for OpenAI Codex CLI
 
 Options:
-  --force  - Recreate all assets (default: idempotent)
-  --help   - Show this help message
+  --force   - Recreate all assets (default: idempotent)
+  --debug   - Enable debug logging
+  --help    - Show this help message
 
 Examples:
   deno run npm:run-rampante install codex
   deno run npm:run-rampante install codex --force
+  deno run npm:run-rampante install codex --debug
 `);
 }
 
-function showError(message: string): never {
-  console.error(`Error: ${message}`);
+function showError(message: string, logger: Logger): never {
+  logger.error(message);
   Deno.exit(1);
 }
 
-function validateArgs(args: CliArgs) {
+function validateArgs(args: CliArgs, logger: Logger) {
   if (args.help) {
     showUsage();
     Deno.exit(0);
@@ -58,17 +61,18 @@ function validateArgs(args: CliArgs) {
 
   // Expected format: ['install', '<cli>']
   if (args._.length < 2) {
-    showError("Missing CLI target. Use --help for usage.");
+    showError("Missing CLI target. Use --help for usage.", logger);
   }
 
   if (args._[0] !== "install") {
-    showError('First argument must be "install"');
+    showError('First argument must be "install"', logger);
   }
 
   const cliTarget = args._[1] as string;
   if (!SUPPORTED_CLIS.includes(cliTarget)) {
     showError(
-      `CLI target "${cliTarget}" target not yet supported. Phase 1 supports: ${SUPPORTED_CLIS.join(", ")}`,
+      `CLI target "${cliTarget}" not yet supported. Phase 1 supports: ${SUPPORTED_CLIS.join(", ")}`,
+      logger
     );
   }
 
@@ -80,41 +84,47 @@ function validateArgs(args: CliArgs) {
 }
 
 async function main() {
+  // Create logger - check for debug flag in args first
+  const hasDebug = Deno.args.includes("--debug") || Deno.args.includes("-d");
+  const logger = new Logger({ debug: hasDebug });
+  
   try {
     const args = parseArgs(Deno.args, {
-      boolean: ["force", "help"],
+      boolean: ["force", "help", "debug"],
       alias: {
         f: "force",
         h: "help",
+        d: "debug",
       },
-    }) as CliArgs;
+    }) as CliArgs & { debug?: boolean };
 
-    const { cliTarget, force } = validateArgs(args);
+    const { cliTarget, force } = validateArgs(args, logger);
 
-    console.log(`Installing Rampante for ${cliTarget}...`);
+    logger.info(`Installing Rampante for ${cliTarget}...`);
+    if (force) {
+      logger.warn("Force mode enabled - existing files will be overwritten");
+    }
 
     // Step 1: Install assets (rampante.md, recommended-stacks)
-    console.log("Installing assets...");
+    logger.info("Installing assets...");
     await installAssets(force);
 
     // Step 2: Install required scripts (select-stack.sh, generate-project-overview.sh)
-    console.log("Installing scripts...");
+    logger.info("Installing scripts...");
     await installScripts(force);
 
     // Step 3: Configure context7 for the target CLI
-    console.log("Configuring context7...");
+    logger.info("Configuring context7...");
     await configureContext7(cliTarget);
 
     // Step 4: Register rampante command with target CLI
-    console.log("Registering rampante command...");
+    logger.info("Registering rampante command...");
     await registerRampante(cliTarget);
 
-    console.log(`✅ Rampante successfully installed for ${cliTarget}`);
-    console.log("You can now use the /rampante command in your CLI");
+    logger.success(`Rampante successfully installed for ${cliTarget}`);
+    logger.info("You can now use the /rampante command in your CLI");
   } catch (error) {
-    const err = error as Error;
-    console.error(`Error: ${err.message}`);
-    Deno.exit(1);
+    ErrorHandler.handleCliError(error, logger);
   }
 }
 
