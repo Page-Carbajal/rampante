@@ -76,6 +76,18 @@ export class Logger {
   scope(prefix: string): ScopedLogger {
     return new ScopedLogger(this, prefix);
   }
+
+  /**
+   * Log dry-run activation notice
+   */
+  dryRunActivated(context?: Record<string, unknown>): void {
+    if (!this.options.silent) {
+      const contextInfo = context ? 
+        ` | ${Object.entries(context).map(([k, v]) => `${k}: ${v}`).join(', ')}` : 
+        '';
+      console.log(`🔍 DRY RUN MODE: No execution, generating prompts only${contextInfo}`);
+    }
+  }
 }
 
 export class ScopedLogger {
@@ -102,6 +114,14 @@ export class ScopedLogger {
 
   debug(message: string): void {
     this.logger.debug(`[${this.prefix}] ${message}`);
+  }
+
+  /**
+   * Log dry-run activation notice with scope prefix
+   */
+  dryRunActivated(context?: Record<string, unknown>): void {
+    const scopedContext = { scope: this.prefix, ...context };
+    this.logger.dryRunActivated(scopedContext);
   }
 }
 

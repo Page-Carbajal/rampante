@@ -18,7 +18,7 @@ Rampante is a multi-CLI slash command system that automates the spec-driven deve
 # Install for Codex CLI (choose one of the following methods)
 
 # Option 1: From JSR (after publishing)
-deno run -A --reload jsr:@page-carbajal/rampante/cli install codex
+deno run -A --reload jsr:@page-carbajal/rampante install-for codex, gemini, cursor
 
 # Option 2: Directly from GitHub
 deno run -A https://raw.githubusercontent.com/YOUR_USERNAME/rampante/main/cli.ts install codex

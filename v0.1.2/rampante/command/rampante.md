@@ -4,15 +4,79 @@ Run the Spec-Driven Development workflow from a single prompt via slash command 
 
 This simplified orchestrator removes stack selection and live documentation retrieval. It focuses on generating a spec, creating a plan, drafting tasks (delegated), and building a project overview.
 
+## Input Processing & Dry-Run Detection
+
+**First, check if the prompt starts with `--dry-run` flag:**
+
+### Dry-Run Mode (if prompt starts with `--dry-run`)
+
+If the first token of the prompt is exactly `--dry-run`:
+
+Process:
+
+1. Extract the remaining prompt content (everything after `--dry-run` and optional whitespace)
+2. Generate prompts for each downstream command without executing them:
+   - `/specify`: Use the extracted prompt content directly
+   - `/plan`: Generate prompt referencing the spec that would be created (`/specs/[feature-name]/spec.md`)
+   - `/tasks`: Generate prompt referencing the plan that would be created (`/specs/[feature-name]/plan.md`)
+3. Format output as structured Markdown per CLI contract
+4. Return formatted output and exit with code 0
+5. **CRITICAL**: No side effects, no file creation, no command execution
+
+Output Format:
+
+````markdown
+# DRY RUN: /rampante
+
+## Summary
+
+- Commands: [/specify, /plan, /tasks]
+
+## /specify
+
+```text
+[extracted prompt content]
+```
+````
+
+## /plan
+
+```text
+/specs/[feature-name]/spec.md
+```
+
+## /tasks
+
+```text
+/specs/[feature-name]/plan.md
+```
+
+```
+
+**Exit immediately after dry-run output. Do not proceed to normal workflow.**
+
+### Invalid Flag Position
+
+If `--dry-run` appears anywhere except as the first token:
+- Return error message: "Flag --dry-run must be the first token"
+- Exit with code 2
+
+### Normal Mode (no `--dry-run` flag)
+
+If the prompt does not start with `--dry-run`, proceed with standard workflow:
+
 ## Prerequisites Check
 
 - The `/scripts` folder MUST exist in the current directory
 
 If missing:
 ```
+
 ERROR: Missing required directory
+
 - /scripts directory: [EXISTS/MISSING]
-Cannot proceed without required project structure.
+  Cannot proceed without required project structure.
+
 ```
 
 EXIT PROCESS IMMEDIATELY
@@ -93,3 +157,4 @@ Expected Outputs:
 - Any phase reports ERROR in its template-driven gates: STOP and report which gate failed.
 
 Note: This command definition intentionally contains no references to stack selection or live documentation retrieval.
+```
