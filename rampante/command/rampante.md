@@ -1,168 +1,131 @@
-# Rampante Command
+# AI Agent Orchestrator: Spec-Driven Development Workflow
 
-The `/rampante` command triggers a complete Spec-Driven Development workflow from a single prompt.
+**For AI Agents:** Claude Code, Gemini, Codex, Cursor Agent, and other CLI-based AI development assistants.
 
-## Usage
+Run the complete Spec-Driven Development workflow from a single prompt via slash command `/command`.
 
+This orchestrator ties together stack selection, documentation retrieval (via context7 MCP), and the Spec Kit commands to automate the entire development planning process.
+
+## Prerequisites Check
+
+**CRITICAL:** Before starting, verify directory structure:
+- The `/scripts` folder MUST exist in the current directory
+- The `/recommended-stacks` folder MUST exist in the current directory
+
+If either directory is missing:
 ```
-/rampante "<main prompt>"
+ERROR: Missing required directories
+- /scripts directory: [EXISTS/MISSING]
+- /recommended-stacks directory: [EXISTS/MISSING]
+
+Cannot proceed without required project structure. Please ensure you're in the correct project root directory.
 ```
+**EXIT PROCESS IMMEDIATELY**
 
-Example:
+## Workflow Execution
 
-```
-/rampante "Create a task management web app with user authentication"
-```
+Given the main prompt provided as an argument, execute this deterministically without user interaction:
 
-## Workflow
+### 1. Analyze prompt and select stack (YOLO):
+   - Run `scripts/select-stack.sh --json "$ARGUMENTS"` from the repo root.
+   - Parse JSON for: `selected_stack`, `stack_file`, `priority`, `technologies`, and `fallback`.
+   - If `/recommended-stacks/DEFINITIONS.md` is missing → ERROR "Missing /recommended-stacks/DEFINITIONS.md. Run installer to set up stacks." and **EXIT PROCESS**.
+   - If `stack_file` is missing → ERROR "Missing stack file: <stack_file>. Please add it to /recommended-stacks" and **EXIT PROCESS**.
 
-### 1. Analyze Prompt & Select Stack
+### 2. Load stack documentation:
+   - Read `stack_file` for context (already identified by the script).
+   - Extract the selected stack name and list of technologies from step 1.
 
-First, analyze the main prompt to determine the project type by looking for keywords and patterns in `/recommended-stacks/DEFINITIONS.md`.
+### 3. Fetch latest documentation via context7 MCP:
+   - **CRITICAL:** If context7 is unavailable for any reason, fail immediately with the exact message:
+     ```
+     Error: context7 MCP not available
+     Please ensure context7 is properly configured in ~/.codex/config.toml
+     ```
+     **EXIT PROCESS**
+   - For each technology in the `technologies` list:
+     - Call `resolve-library-id` to map the technology to a Context7-compatible library ID.
+     - Then call `get-library-docs` with a sensible token limit (e.g., 3000–6000) and topic focus when applicable.
+   - Combine the results into a concise documentation set (ordered by technology name) to pass into planning.
+   - Store a short summary string for the `/plan` step: `Using the <SELECTED-STACK> stack with the following technologies and updated documentation: <context7 results summary>`.
 
-Use YOLO (You Only Look Once) strategy:
+### 4. Execute Spec Kit commands in sequence (feed outputs forward):
 
-- Match tags and descriptions against the prompt
-- Pick the first good match without user interaction
-- For ties, use deterministic ordering (priority field, then order in DEFINITIONS.md)
+   **a) /specify**
+      - Run: `scripts/create-new-feature.sh --json "$ARGUMENTS"`
+      - Parse JSON: `BRANCH_NAME`, `SPEC_FILE`, `FEATURE_NUM`.
+      - Load `templates/spec-template.md` and write the completed specification to `SPEC_FILE` using the user prompt. Follow the template's execution flow; fill mandatory sections; mark ambiguities as [NEEDS CLARIFICATION] instead of guessing.
 
-### 2. Load Stack Documentation
+   **b) /plan**
+      - Run: `scripts/setup-plan.sh --json`
+      - Parse JSON: `FEATURE_SPEC`, `IMPL_PLAN`, `SPECS_DIR`, `BRANCH`.
+      - Load `templates/plan-template.md` (already copied to `IMPL_PLAN`).
+      - Execute steps 1–10 per the template, incorporating: `Using the <SELECTED-STACK> stack with the following technologies and updated documentation: <context7 results summary>`.
+      - Ensure Phase 0–2 artifacts are generated in `SPECS_DIR` without errors.
 
-Once a stack is selected (e.g., SIMPLE_WEB_APP):
-
-- Load `/recommended-stacks/<SELECTED-STACK>.md`
-- Extract the stack specifications and technologies
-
-### 3. Fetch Latest Documentation via Context7
-
-Use the context7 MCP to get up-to-date documentation for the selected stack:
-
-- Extract technology list from the stack file
-- Query context7 for each technology mentioned
-- Combine results into comprehensive documentation set
-
-**CRITICAL**: If context7 is unavailable (invalid API key, network error, etc.), fail immediately with error:
-
-```
-Error: context7 MCP not available
-Please ensure context7 is properly configured in ~/.codex/config.toml
-```
-
-### 4. Execute Spec Kit Commands
-
-Run the following commands in sequence, passing outputs forward:
-
-#### a. /specify
-
-```
-/specify "<main prompt>"
-```
-
-This creates a feature specification from the user's requirements.
-
-#### b. /plan
-
-```
-/plan "Using the <SELECTED-STACK> stack with the following technologies and updated documentation: <context7 results>"
-```
-
-This creates an implementation plan based on the spec and selected stack.
-
-#### c. /tasks
-
-```
-/tasks "Generate the MVP for this project"
-```
-
-This breaks down the plan into executable tasks.
+   **c) /tasks**
+      - Run: `scripts/check-task-prerequisites.sh --json`
+      - Parse JSON: `FEATURE_DIR`, `AVAILABLE_DOCS`.
+      - Generate `tasks.md` per `/templates/tasks-template.md`, reading available design docs.
+      - Ensure tasks are specific, ordered with dependencies, and parallelizable where safe.
 
 ### 5. Generate PROJECT-OVERVIEW.md
+   - Run: `scripts/generate-project-overview.sh \
+       --stack "<SELECTED-STACK>" \
+       --stack-file "<stack_file>" \
+       --technologies "<comma-separated list>" \
+       --docs-timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)"`
+   - The script must create or overwrite `specs/PROJECT-OVERVIEW.md` with:
+     - Purpose and Project Snapshot (feature from spec, stack name, technologies, timestamp)
+     - Absolute paths to: spec.md, plan.md, tasks.md, and the selected stack file
+     - Execution Priorities (top 3–5 from plan, if present)
+     - AI Agent Instructions (extract from plan, if present)
+     - Parallelization notes (from tasks)
+     - Environment & Assumptions (from plan's Technical Context)
+     - Contact Points (Feature Owner, Scope if found; otherwise mark as Unspecified)
+     - Change Log Notes (as given)
 
-Create or overwrite `specs/PROJECT-OVERVIEW.md` with a summary containing:
+## Error Handling & Process Control
 
-```markdown
-# Project Overview – <Project Name from Spec>
-
-## Purpose
-
-- Brief AI-facing guide to this project with links to specs and tasks
-- Optimized for quick ingestion and high-signal execution context
-
-## Project Snapshot
-
-- Feature: <from specification>
-- Selected Stack: <SELECTED-STACK>
-- Technologies: <from stack file>
-- Documentation Updated: <timestamp>
-
-## Key Artifacts (absolute paths)
-
-- Spec: <path to spec.md>
-- Plan: <path to plan.md>
-- Tasks: <path to tasks.md>
-- Stack Definition: <path to selected stack file>
-
----
-
-## Execution Priorities (from plan)
-
-<Extract top 3-5 priorities from plan.md>
-
-### AI Agent Instructions
-
-<Extract key instructions from plan.md>
-
-### Parallelization
-
-<Extract parallelization notes from tasks.md>
-
----
-
-## Environment & Assumptions
-
-<Extract from plan.md Technical Context>
-
-### Contact Points
-
-- Feature Owner: <from spec>
-- Scope: <from spec>
-
-### Change Log Notes
-
-- Keep commits small, one task per commit where possible
-```
-
-## Error Handling
+### Required Directory Structure
+   - **Missing `/scripts` directory:** ERROR "Required /scripts directory not found in current directory" and **EXIT PROCESS**.
+   - **Missing `/recommended-stacks` directory:** ERROR "Required /recommended-stacks directory not found in current directory" and **EXIT PROCESS**.
 
 ### Missing Files
-
-If any required file is missing:
-
-- `/recommended-stacks/DEFINITIONS.md`: Error with instructions to run installer
-- `/recommended-stacks/<STACK>.md`: Error with stack name and request to add it
-- `~/.codex/config.toml`: Error with configuration instructions
+   - If `/recommended-stacks/DEFINITIONS.md` missing: show installer message and **EXIT PROCESS**.
+   - If `/recommended-stacks/<STACK>.md` missing: show stack file message and **EXIT PROCESS**.
+   - If `~/.codex/config.toml` missing: treat as context7 unavailable → show exact CRITICAL error and **EXIT PROCESS**.
 
 ### Context7 Failures
+   - Any context7 MCP failure: show the CRITICAL error and **EXIT PROCESS**.
 
-Any context7 error must halt execution:
+### Stack-selection Failures
+   - Select the most general-purpose stack (lowest priority) and set `fallback: true`.
+   - Add a note in `PROJECT-OVERVIEW.md` about fallback selection.
 
-- Invalid API key
-- Network timeout
-- Service unavailable
+## AI Agent Guidelines
 
-Show clear error message and exit.
+### Determinism and Logging
+   - Use YOLO: first good match by tags; ties broken by lower priority then order in DEFINITIONS.md.
+   - Keep command outputs for troubleshooting.
+   - Use absolute paths in all generated content.
+   - **Never prompt the user after the initial prompt.**
+   - Execute all steps programmatically without human intervention.
 
-### Stack Selection Failures
+### Slash Command Integration
+   - This orchestrator runs as `/command` in supported AI agents
+   - Compatible with: Claude Code, Gemini, Codex, Cursor Agent, and similar CLI-based AI development tools
+   - Designed for autonomous execution within agent environments
 
-If no stack matches the prompt:
+## Reporting
 
-- Select the most general-purpose stack (lowest priority number)
-- Add note in PROJECT-OVERVIEW.md about the selection
+### On Success, report:
+- Selected stack and priority
+- Created branch and paths for spec, plan, tasks
+- Technologies fetched via context7 (list)
+- PROJECT-OVERVIEW.md path
 
-## Implementation Notes
-
-1. Always overwrite `specs/PROJECT-OVERVIEW.md` - no prompting
-2. Use absolute paths in all generated content
-3. Maintain command output for troubleshooting
-4. Keep the workflow deterministic and automated
-5. No user interaction after initial prompt
+### On Failure, report:
+- The exact error per the rules above
+- **STOP execution immediately**
+- Do not attempt recovery or continuation
