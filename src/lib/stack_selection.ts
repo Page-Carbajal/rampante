@@ -8,7 +8,7 @@
  * - Extract technologies from selected stack file
  */
 
-import { join } from 'https://deno.land/std@0.208.0/path/mod.ts';
+import { join } from '@std/path';
 import { pathExists } from './fs_utils.ts';
 
 export interface StackInfo {

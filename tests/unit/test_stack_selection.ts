@@ -1,5 +1,5 @@
-import { assertEquals, assertExists, assert } from "https://deno.land/std@0.208.0/testing/asserts.ts";
-import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
+import { assertEquals, assertExists, assert } from "@std/assert";
+import { join } from "@std/path";
 import { 
   selectStack, 
   getAvailableStacks, 
