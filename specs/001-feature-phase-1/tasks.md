@@ -49,8 +49,8 @@ Unit tests (for libs/services planned below)
 
 Priority Order (per plan Summary)
 
-- [ ] T011 Create Codex command file at `/Users/dubois/Source/repos/ai/rampante/rampant-command/rampant.md` with the `/rampant` workflow: select stack (from DEFINITIONS.md), fetch context7 docs, run `/specify`, `/plan`, `/tasks`, generate `specs/PROJECT-OVERVIEW.md`.
-- [ ] T012 Create stacks directory and seed definitions at `/Users/dubois/Source/repos/ai/rampante/recommended-stacks/DEFINITIONS.md` and initial stack spec(s), e.g., `/Users/dubois/Source/repos/ai/rampante/recommended-stacks/SIMPLE_WEB_APP.md`.
+- [x] T011 Create Codex command file at `/Users/dubois/Source/repos/ai/rampante/rampant-command/rampant.md` with the `/rampant` workflow: select stack (from DEFINITIONS.md), fetch context7 docs, run `/specify`, `/plan`, `/tasks`, generate `specs/PROJECT-OVERVIEW.md`.
+- [x] T012 Create stacks directory and seed definitions at `/Users/dubois/Source/repos/ai/rampante/recommended-stacks/DEFINITIONS.md` and initial stack spec(s), e.g., `/Users/dubois/Source/repos/ai/rampante/recommended-stacks/SIMPLE_WEB_APP.md`.
 - [ ] T013 Implement Deno installer CLI entry at `/Users/dubois/Source/repos/ai/rampante/src/cli/install.ts` handling:
       `deno run npm:run-rampant install <cli>` (Phase 1 supports `codex`).
 
