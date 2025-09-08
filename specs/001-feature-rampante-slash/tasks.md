@@ -21,10 +21,10 @@
 
 ## Phase 3.1: Setup
 
-- [ ] T001 Create project structure with src/ and tests/ directories
-- [ ] T002 Initialize Deno project with TypeScript configuration and import map in deno.json
-- [ ] T003 [P] Configure deno.json with linting, formatting, and test settings
-- [ ] T004 [P] Create GitHub Actions workflow file .github/workflows/release.yml
+- [x] T001 Create project structure with src/ and tests/ directories
+- [x] T002 Initialize Deno project with TypeScript configuration and import map in deno.json
+- [x] T003 [P] Configure deno.json with linting, formatting, and test settings
+- [x] T004 [P] Create GitHub Actions workflow file .github/workflows/release.yml
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 

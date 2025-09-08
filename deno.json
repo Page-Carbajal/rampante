@@ -2,32 +2,32 @@
   "name": "@page-carbajal/rampante",
   "version": "0.2.0",
   "license": "MIT",
-  "exports": {
-    ".": "./mod.ts",
-    "./cli": "./cli.ts"
-  },
+  "exports": "./src/cli/main.ts",
   "tasks": {
-    "test": "deno test --allow-all",
-    "test:contract": "deno test --allow-all tests/contract/",
-    "test:integration": "deno test --allow-all tests/integration/",
-    "test:unit": "deno test --allow-all tests/unit/",
-    "fmt": "deno fmt",
+    "dev": "deno run -A src/cli/main.ts",
+    "test": "deno test -A",
+    "test:contract": "deno test -A tests/contract/",
+    "test:integration": "deno test -A tests/integration/",
+    "test:unit": "deno test -A tests/unit/",
+    "test:performance": "deno test -A tests/performance/",
     "lint": "deno lint",
-    "check": "deno check src/**/*.ts",
-    "update:command": "deno run --allow-read --allow-write src/cli/update-rampante-command.ts"
+    "fmt": "deno fmt",
+    "check": "deno check src/cli/main.ts"
   },
   "fmt": {
     "useTabs": false,
-    "lineWidth": 80,
+    "lineWidth": 100,
     "indentWidth": 2,
     "semiColons": true,
-    "singleQuote": true,
-    "proseWrap": "preserve"
+    "singleQuote": false,
+    "proseWrap": "preserve",
+    "exclude": ["templates/", "specs/"]
   },
   "lint": {
     "rules": {
       "tags": ["recommended"]
-    }
+    },
+    "exclude": ["templates/", "specs/"]
   },
   "compilerOptions": {
     "lib": ["deno.window"],
@@ -38,6 +38,12 @@
     "@std/flags": "jsr:@std/flags@^0.224.0",
     "@std/path": "jsr:@std/path@^1.1.2",
     "@std/fs": "jsr:@std/fs@^1.0.19",
-    "@upstash/context7-mcp": "npm:@upstash/context7-mcp"
+    "@std/testing": "jsr:@std/testing@^1.0.0"
+  },
+  "test": {
+    "include": ["tests/"]
+  },
+  "publish": {
+    "exclude": [".git/", "specs/", ".github/"]
   }
 }
