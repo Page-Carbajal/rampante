@@ -1,3 +1,6 @@
+description = "AI Agent Orchestrator: Spec-Driven Development (Simplified)"
+
+prompt = """
 # AI Agent Orchestrator: Spec-Driven Development (Simplified)
 
 Run the Spec-Driven Development workflow from a single prompt via slash command `/rampante.md`.
@@ -163,3 +166,4 @@ Expected Outputs:
 
 Note: This command definition intentionally contains no references to stack selection or live documentation retrieval.
 ```
+"""
