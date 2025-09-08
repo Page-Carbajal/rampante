@@ -1,7 +1,7 @@
 # Implementation Plan: Rampante - Complete Spec Kit Automation System
 
-**Branch**: `001-feature-rampante-slash` | **Date**: 2025-09-07 | **Spec**: /Users/dubois/Source/repos/ai/rampante/specs/001-feature-rampante-slash/spec.md
-**Input**: Feature specification from `/specs/001-feature-rampante-slash/spec.md`
+**Branch**: `001-feature-rampante-slash` | **Date**: 2025-09-08 | **Spec**: /Users/dubois/Source/repos/ai/rampante/specs/001-feature-rampante-slash/spec.md
+**Input**: Feature specification from `/Users/dubois/Source/repos/ai/rampante/specs/001-feature-rampante-slash/spec.md`
 
 ## Execution Flow (/plan command scope)
 
@@ -32,19 +32,19 @@
 
 ## Summary
 
-Create a comprehensive Spec Kit automation system that provides preview capabilities and streamlined workflow execution. The system includes: dry-run preview mode for /specify, /plan, /tasks commands; automated workflow execution; CLI-specific template generation and distribution; release workflow for multi-CLI deployment; and installation mechanism for AI CLIs (Gemini, Codex, Cursor, Claude Code). Built as a multi-component system with installer, template engine, and release automation.
+Create a comprehensive Spec Kit automation system that provides preview capabilities and streamlined workflow execution. The system includes: dry-run preview mode for /specify, /plan, /tasks commands; automated workflow execution; CLI-specific template generation and distribution; release workflow for multi-CLI deployment; and installation mechanism for AI CLIs (Gemini, Codex, Cursor, Claude Code). Built as a multi-component system with installer, template engine, and release automation focusing on the core functionalities of MD file generation for dry-run support and single-command workflow execution.
 
 ## Technical Context
 
 **Language/Version**: Deno + TypeScript (latest stable)
 **Primary Dependencies**: Deno standard library (@std/path, @std/fs, @std/flags), GitHub Actions for release workflow
-**Storage**: File system (CLI configs, templates, distribution packages)
+**Storage**: File system (CLI configs, templates, distribution packages, generated MD files)
 **Testing**: Deno test (built-in testing framework)
 **Target Platform**: Cross-platform CLI + GitHub-hosted release workflow + AI CLI environments
-**Project Type**: single (integrated system with multiple components)
-**Performance Goals**: Fast installation (<5s), dry-run preview (<2s), template generation (<1s per CLI)
-**Constraints**: No external dependencies beyond Deno stdlib, must work offline after installation, template integrity validation
-**Scale/Scope**: 4 AI CLIs initially, extensible to additional CLIs, global distribution via GitHub releases
+**Project Type**: single (integrated CLI system with MD file generation focus)
+**Performance Goals**: Fast installation (<5s), dry-run preview (<2s), MD file generation (<1s), template generation (<1s per CLI)
+**Constraints**: No external dependencies beyond Deno stdlib, must work offline after installation, template integrity validation, MD files must support both dry-run and execution modes
+**Scale/Scope**: 4 AI CLIs initially (Gemini, Codex, Cursor, Claude Code), extensible to additional CLIs, global distribution via GitHub releases, focus on efficient MD file generation for Spec Kit command execution
 
 ## Constitution Check
 
@@ -52,30 +52,30 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 **Simplicity**:
 
-- Projects: 1 (integrated system with installer, templates, release workflow)
+- Projects: 1 (integrated CLI system with MD file generation, template engine, and release automation)
 - Using framework directly: Yes (Deno std lib, GitHub Actions, no wrapper layers)
-- Single data model: Yes (CLI configs, templates, packages - unified data model)
-- Avoiding patterns: Yes (direct file operations, no Repository/UoW complexity)
+- Single data model: Yes (MD files, CLI configs, templates, packages - unified data model)
+- Avoiding patterns: Yes (direct file operations, template processing, no Repository/UoW complexity)
 
 **Architecture**:
 
-- EVERY feature as library: Yes (installer lib, template lib, preview lib, CLI entry point)
-- Libraries listed: installer (CLI detection/installation), templates (CLI-specific generation), preview (dry-run simulation), cli (main interface)
-- CLI per library: Single integrated CLI with subcommands (install, preview, execute)
+- EVERY feature as library: Yes (MD file generator lib, template processor lib, installer lib, CLI entry point)
+- Libraries listed: md-generator (MD file creation), template-processor (CLI-specific templates), installer (CLI detection/installation), cli (main interface)
+- CLI per library: Single integrated CLI with subcommands (install, preview, execute, list)
 - Library docs: Yes, llms.txt format for AI CLI integration documentation
 
 **Testing (NON-NEGOTIABLE)**:
 
 - RED-GREEN-Refactor cycle enforced: Yes (tests written before implementation)
 - Git commits show tests before implementation: Required
-- Order: Contract→Integration→Unit (E2E via integration tests for CLI workflow)
+- Order: Contract→Integration→E2E→Unit (E2E via integration tests for CLI workflow)
 - Real dependencies used: Yes (actual file system, real CLI directories, GitHub API)
-- Integration tests for: CLI installation, template generation, workflow execution, release process
+- Integration tests for: MD file generation, CLI installation, template processing, release workflow
 - FORBIDDEN: Implementation before test, skipping RED phase
 
 **Observability**:
 
-- Structured logging included: Yes (installation progress, workflow steps, error context)
+- Structured logging included: Yes (MD file generation progress, installation steps, workflow execution, error context)
 - Frontend logs → backend: N/A (CLI tool, single process)
 - Error context sufficient: Yes (file paths, CLI types, command states, failure details)
 
@@ -83,14 +83,14 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 - Version number assigned: 0.2.0 (MAJOR.MINOR.BUILD)
 - BUILD increments on every change: Yes
-- Breaking changes handled: Template versioning, backward compatibility for CLI configs
+- Breaking changes handled: MD file template versioning, backward compatibility for CLI configs
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-specs/001-feature-rampante-slash/
+specs/[###-feature]/
 ├── plan.md              # This file (/plan command output)
 ├── research.md          # Phase 0 output (/plan command)
 ├── data-model.md        # Phase 1 output (/plan command)
@@ -137,7 +137,7 @@ ios/ or android/
 └── [platform-specific structure]
 ```
 
-**Structure Decision**: DEFAULT (Option 1) - Single integrated project with multiple library components
+**Structure Decision**: DEFAULT (Option 1) - Single integrated project with focus on MD file generation and CLI integration components
 
 ## Phase 0: Outline & Research
 
@@ -202,19 +202,22 @@ _This section describes what the /tasks command will do - DO NOT execute during 
 **Task Generation Strategy**:
 
 - Load `/templates/tasks-template.md` as base
-- Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
-- Each contract → contract test task [P]
-- Each entity → model creation task [P]
-- Each user story → integration test task
-- Implementation tasks to make tests pass
+- Generate tasks from Phase 1 design docs focusing on MD file generation capabilities
+- Each contract → contract test task [P] (4 contracts including MD file generation)
+- Each entity → model creation task [P] (8 entities including ExecutableMDFile)
+- MD file generation → specialized tasks for template processing and dual-mode operation
+- CLI installation → integration tasks for each supported CLI environment
+- Release workflow → automation tasks for package generation and distribution
 
 **Ordering Strategy**:
 
 - TDD order: Tests before implementation
-- Dependency order: Models before services before UI
+- Dependency order: Models before services before CLI commands before MD file generation
+- MD file generation depends on template processing and CLI detection services
 - Mark [P] for parallel execution (independent files)
+- Focus on core MD file functionality first, then distribution mechanisms
 
-**Estimated Output**: 25-30 numbered, ordered tasks in tasks.md
+**Estimated Output**: 35-40 numbered, ordered tasks in tasks.md with emphasis on MD file generation workflow
 
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
@@ -242,8 +245,8 @@ _This checklist is updated during execution flow_
 **Phase Status**:
 
 - [x] Phase 0: Research complete (/plan command)
-- [ ] Phase 1: Design complete (/plan command)
-- [ ] Phase 2: Task planning complete (/plan command - describe approach only)
+- [x] Phase 1: Design complete (/plan command)
+- [x] Phase 2: Task planning complete (/plan command - describe approach only)
 - [ ] Phase 3: Tasks generated (/tasks command)
 - [ ] Phase 4: Implementation complete
 - [ ] Phase 5: Validation passed
@@ -251,9 +254,9 @@ _This checklist is updated during execution flow_
 **Gate Status**:
 
 - [x] Initial Constitution Check: PASS
-- [ ] Post-Design Constitution Check: PASS
+- [x] Post-Design Constitution Check: PASS
 - [x] All NEEDS CLARIFICATION resolved
-- [ ] Complexity deviations documented
+- [x] Complexity deviations documented (none required)
 
 ---
 

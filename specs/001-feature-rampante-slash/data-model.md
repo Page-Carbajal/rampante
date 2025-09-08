@@ -20,18 +20,22 @@
 
 ### SlashCommandTemplate
 
-- **Description**: CLI-specific template that defines /rampante slash command behavior
+- **Description**: CLI-specific template that defines /rampante slash command behavior with MD file generation
 - **Fields**:
   - cliName: string (matches CLIConfiguration.name)
   - templateContent: string (processed template with CLI-specific syntax)
+  - mdFileTemplate: string (template for generating executable MD files)
   - version: string (template version for compatibility)
   - metadata: TemplateMetadata (creation date, compatibility info)
-  - dryRunLogic: string (CLI-specific dry-run implementation)
-  - executionLogic: string (CLI-specific workflow execution)
+  - dryRunLogic: string (MD file logic for preview mode)
+  - executionLogic: string (MD file logic for workflow execution)
+  - specKitCommandMappings: Map<string, string> (maps /specify, /plan, /tasks to MD logic)
 - **Validation Rules**:
   - templateContent must be valid for target CLI format
+  - mdFileTemplate must contain both preview and execution logic
   - version must follow semantic versioning
   - dryRunLogic and executionLogic must be non-empty
+  - specKitCommandMappings must cover all three Spec Kit commands
 
 ### DistributionPackage
 
@@ -92,6 +96,24 @@
   - at least one preview must be non-empty
   - estimatedFiles must be valid file paths
 
+### ExecutableMDFile
+
+- **Description**: Generated markdown file that serves as executable slash command with dual-mode operation
+- **Fields**:
+  - fileName: string (e.g., "rampante.md")
+  - content: string (markdown content with embedded execution logic)
+  - previewLogic: string (logic for dry-run mode)
+  - executionLogic: string (logic for full workflow automation)
+  - specKitMappings: Map<string, MDSection> (sections for /specify, /plan, /tasks)
+  - cliAdaptations: Map<string, string> (CLI-specific execution variations)
+  - metadata: MDFileMetadata (creation date, version, compatibility)
+- **Validation Rules**:
+  - content must be valid markdown
+  - previewLogic must simulate Spec Kit commands without side effects
+  - executionLogic must handle full workflow orchestration
+  - specKitMappings must be complete and accurate
+  - file must be executable in target CLI environments
+
 ### ReleaseManifest
 
 - **Description**: Index of all available distribution packages
@@ -101,17 +123,23 @@
   - packages: DistributionPackage[] (available packages)
   - latestVersion: string (latest rampante version)
   - compatibilityMatrix: CompatibilityInfo[] (version compatibility)
+  - mdFileTemplates: ExecutableMDFile[] (available MD file variants)
 - **Validation Rules**:
   - packages must contain at least one entry per supported CLI
   - latestVersion must match highest package version
+  - mdFileTemplates must include variants for each CLI
 
 ## Relationships
 
 - CLIConfiguration 1 — 1 SlashCommandTemplate (each CLI has one template)
+- SlashCommandTemplate 1 — 1 ExecutableMDFile (each template generates one MD file)
 - CLIConfiguration 1 — N DistributionPackage (multiple versions per CLI)
+- DistributionPackage 1 — 1 ExecutableMDFile (each package contains one MD file)
 - InstallationContext N — 1 CLIConfiguration (many installs per CLI)
 - WorkflowExecutionContext 1 — 1 PreviewResult (each execution has preview)
+- WorkflowExecutionContext 1 — 1 ExecutableMDFile (execution uses MD file logic)
 - ReleaseManifest 1 — N DistributionPackage (manifest references packages)
+- ReleaseManifest 1 — N ExecutableMDFile (manifest tracks MD file variants)
 
 ## State Transitions
 
