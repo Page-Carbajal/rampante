@@ -22,6 +22,7 @@ tests/
 # Add commands for
 npm test && npm run lint
 npm test && npm run lint
+npm test && npm run lint
 
 npm test && npm run lint
 npm test && npm run lint
@@ -32,8 +33,8 @@ npm test && npm run lint
 
 ## Recent Changes
 - 001-feature-rampante-slash: Added **Language/Version**: Deno + TypeScript (latest stable) + **Primary Dependencies**: Deno standard library (@std/path, @std/fs, @std/flags), GitHub Actions for release workflow
+- 001-feature-rampante-slash: Added **Language/Version**: Deno + TypeScript (latest stable) + **Primary Dependencies**: Deno standard library (@std/path, @std/fs, @std/flags), GitHub Actions for release workflow
 - 001-create-a-tool: Added **Language/Version**: Deno + TypeScript (latest stable)   + **Primary Dependencies**: Deno standard library (@std/path, @std/fs, @std/flags), JSR distribution  
-- 003-implement-rampante-dryrun: Added **Language/Version**: Deno + TypeScript (existing project) + **Primary Dependencies**: Built-in Deno APIs; existing Rampante CLI/services
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

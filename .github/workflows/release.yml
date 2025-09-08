@@ -1,0 +1,266 @@
+name: Release Rampante Packages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.version.outputs.changed }}
+      new_version: ${{ steps.version.outputs.version }}
+      version_tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check version change
+        id: version
+        run: |
+          current_version=$(jq -r '.version' deno.json)
+          echo "Current version: $current_version"
+
+          if git diff HEAD~1 HEAD --name-only | grep -q "deno.json"; then
+            previous_version=$(git show HEAD~1:deno.json | jq -r '.version')
+            echo "Previous version: $previous_version"
+
+            if [ "$current_version" != "$previous_version" ]; then
+              echo "changed=true" >> $GITHUB_OUTPUT
+              echo "version=$current_version" >> $GITHUB_OUTPUT
+              echo "tag=v$current_version" >> $GITHUB_OUTPUT
+              echo "Version changed from $previous_version to $current_version"
+            else
+              echo "changed=false" >> $GITHUB_OUTPUT
+              echo "Version unchanged"
+            fi
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "deno.json not modified"
+          fi
+
+  test:
+    runs-on: ubuntu-latest
+    needs: version-check
+    if: needs.version-check.outputs.should_release == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Run tests
+        run: deno task test
+
+      - name: Run linting
+        run: deno task lint
+
+      - name: Type check
+        run: deno task check
+
+  build-packages:
+    runs-on: ubuntu-latest
+    needs: [version-check, test]
+    if: needs.version-check.outputs.should_release == 'true'
+    outputs:
+      packages: ${{ steps.build.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Build CLI-specific packages
+        id: build
+        run: |
+          VERSION="${{ needs.version-check.outputs.new_version }}"
+          echo "Building packages for version $VERSION"
+
+          # Create distribution directory
+          mkdir -p dist
+
+          # Generate CLI-specific templates and packages
+          for cli in gemini codex cursor claude-code; do
+            echo "Building package for $cli..."
+
+            # Create package directory
+            pkg_dir="dist/rampante-$cli-$VERSION"
+            mkdir -p "$pkg_dir"
+
+            # Generate MD file for this CLI
+            deno run -A src/services/md_file_service.ts \
+              --cli="$cli" \
+              --version="$VERSION" \
+              --output="$pkg_dir/rampante.md"
+
+            # Copy CLI-specific template files
+            if [ -d "templates/$cli" ]; then
+              cp -r "templates/$cli"/* "$pkg_dir/"
+            fi
+
+            # Create package metadata
+            cat > "$pkg_dir/package.json" << EOF
+          {
+            "name": "@page-carbajal/rampante-$cli",
+            "version": "$VERSION",
+            "cli": "$cli",
+            "files": ["rampante.md", "*.toml", "*.md", "*.json"]
+          }
+          EOF
+
+            # Create README
+            cat > "$pkg_dir/README.md" << EOF
+          # Rampante for $cli CLI
+
+          Version: $VERSION
+
+          ## Installation
+
+          \`\`\`bash
+          deno run -A --reload jsr:@page-carbajal/rampante install $cli
+          \`\`\`
+
+          ## Usage
+
+          \`\`\`
+          /rampante --dry-run "feature description"
+          /rampante "feature description"
+          \`\`\`
+          EOF
+
+            # Create zip package
+            cd dist
+            zip -r "rampante-$cli-$VERSION.zip" "rampante-$cli-$VERSION/"
+            cd ..
+
+            # Generate checksum
+            sha256sum "dist/rampante-$cli-$VERSION.zip" > "dist/rampante-$cli-$VERSION.zip.sha256"
+          done
+
+          # Create release manifest
+          cat > "dist/release-manifest.json" << EOF
+          {
+            "version": "$VERSION",
+            "releaseDate": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "packages": [
+              {
+                "cli": "gemini",
+                "version": "$VERSION",
+                "downloadUrl": "https://github.com/${{ github.repository }}/releases/download/v$VERSION/rampante-gemini-$VERSION.zip",
+                "checksum": "$(cat dist/rampante-gemini-$VERSION.zip.sha256 | cut -d' ' -f1)",
+                "size": $(stat -c%s "dist/rampante-gemini-$VERSION.zip")
+              },
+              {
+                "cli": "codex",
+                "version": "$VERSION",
+                "downloadUrl": "https://github.com/${{ github.repository }}/releases/download/v$VERSION/rampante-codex-$VERSION.zip",
+                "checksum": "$(cat dist/rampante-codex-$VERSION.zip.sha256 | cut -d' ' -f1)",
+                "size": $(stat -c%s "dist/rampante-codex-$VERSION.zip")
+              },
+              {
+                "cli": "cursor",
+                "version": "$VERSION",
+                "downloadUrl": "https://github.com/${{ github.repository }}/releases/download/v$VERSION/rampante-cursor-$VERSION.zip",
+                "checksum": "$(cat dist/rampante-cursor-$VERSION.zip.sha256 | cut -d' ' -f1)",
+                "size": $(stat -c%s "dist/rampante-cursor-$VERSION.zip")
+              },
+              {
+                "cli": "claude-code",
+                "version": "$VERSION",
+                "downloadUrl": "https://github.com/${{ github.repository }}/releases/download/v$VERSION/rampante-claude-code-$VERSION.zip",
+                "checksum": "$(cat dist/rampante-claude-code-$VERSION.zip.sha256 | cut -d' ' -f1)",
+                "size": $(stat -c%s "dist/rampante-claude-code-$VERSION.zip")
+              }
+            ],
+            "minimumSpecKitVersion": "1.0.0"
+          }
+          EOF
+
+          echo "packages=$(ls dist/*.zip | tr '\n' ',')" >> $GITHUB_OUTPUT
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-packages
+          path: dist/
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [version-check, build-packages]
+    if: needs.version-check.outputs.should_release == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-packages
+          path: dist/
+
+      - name: Create Git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "${{ needs.version-check.outputs.version_tag }}"
+          git push origin "${{ needs.version-check.outputs.version_tag }}"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.version-check.outputs.version_tag }}
+          name: "Rampante v${{ needs.version-check.outputs.new_version }}"
+          body: |
+            # Rampante v${{ needs.version-check.outputs.new_version }}
+
+            Automated release of Rampante CLI-specific packages.
+
+            ## Installation
+
+            ```bash
+            # Install for specific AI CLI
+            deno run -A --reload jsr:@page-carbajal/rampante install gemini
+            deno run -A --reload jsr:@page-carbajal/rampante install codex
+            deno run -A --reload jsr:@page-carbajal/rampante install cursor
+            deno run -A --reload jsr:@page-carbajal/rampante install claude-code
+            ```
+
+            ## Usage
+
+            ```bash
+            # Preview mode (dry-run)
+            /rampante --dry-run "Build user authentication system"
+
+            # Full workflow execution
+            /rampante "Build user authentication system"
+            ```
+
+            ## Packages
+
+            - **rampante-gemini-${{ needs.version-check.outputs.new_version }}.zip**: Gemini CLI integration
+            - **rampante-codex-${{ needs.version-check.outputs.new_version }}.zip**: Codex CLI integration
+            - **rampante-cursor-${{ needs.version-check.outputs.new_version }}.zip**: Cursor CLI integration
+            - **rampante-claude-code-${{ needs.version-check.outputs.new_version }}.zip**: Claude Code CLI integration
+            - **release-manifest.json**: Package metadata and checksums
+          files: |
+            dist/*.zip
+            dist/*.sha256
+            dist/release-manifest.json
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify release
+        run: |
+          echo "✅ Release created successfully!"
+          echo "Version: ${{ needs.version-check.outputs.new_version }}"
+          echo "Tag: ${{ needs.version-check.outputs.version_tag }}"
+          echo "Packages: $(ls dist/*.zip | wc -l) CLI packages created"
