@@ -32,18 +32,18 @@
 
 ### Contract Tests
 
-- [ ] T005 [P] Contract test installer CLI commands in tests/contract/test_installer_cli.ts
-- [ ] T006 [P] Contract test slash command behavior in tests/contract/test_slash_command.ts
-- [ ] T007 [P] Contract test release workflow API in tests/contract/test_release_workflow.ts
-- [ ] T008 [P] Contract test MD file generation behavior in tests/contract/test_md_file_generation.ts
+- [x] T005 [P] Contract test installer CLI commands in tests/contract/test_installer_cli.ts
+- [x] T006 [P] Contract test slash command behavior in tests/contract/test_slash_command.ts
+- [x] T007 [P] Contract test release workflow API in tests/contract/test_release_workflow.ts
+- [x] T008 [P] Contract test MD file generation behavior in tests/contract/test_md_file_generation.ts
 
 ### Integration Tests
 
-- [ ] T009 [P] Integration test CLI installation flow in tests/integration/test_cli_installation.ts
-- [ ] T010 [P] Integration test workflow execution in tests/integration/test_workflow_execution.ts
-- [ ] T011 [P] Integration test MD file generation and dual-mode operation in tests/integration/test_md_file_dual_mode.ts
-- [ ] T012 [P] Integration test template generation in tests/integration/test_template_generation.ts
-- [ ] T013 [P] Integration test package distribution in tests/integration/test_package_distribution.ts
+- [x] T009 [P] Integration test CLI installation flow in tests/integration/test_cli_installation.ts
+- [x] T010 [P] Integration test workflow execution in tests/integration/test_workflow_execution.ts
+- [x] T011 [P] Integration test MD file generation and dual-mode operation in tests/integration/test_md_file_dual_mode.ts
+- [x] T012 [P] Integration test template generation in tests/integration/test_template_generation.ts
+- [x] T013 [P] Integration test package distribution in tests/integration/test_package_distribution.ts
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
